@@ -343,7 +343,7 @@ void TECS::_update_throttle_setpoint(const float throttle_cruise, const matrix::
 		if (fabsf(_throttle_slewrate) > 0.01f) {
 			float throttle_increment_limit = _dt * (_throttle_setpoint_max - _throttle_setpoint_min) * _throttle_slewrate;
 			_throttle_setpoint = constrain(_throttle_setpoint, _last_throttle_setpoint - throttle_increment_limit,
-                                                       _last_throttle_setpoint + throttle_increment_limit);
+						       _last_throttle_setpoint + throttle_increment_limit);
 		}
 
 		_last_throttle_setpoint = _throttle_setpoint;
