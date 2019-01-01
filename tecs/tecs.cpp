@@ -325,7 +325,7 @@ void TECS::_update_throttle_setpoint(const float throttle_cruise, const matrix::
 		// Specific total energy rate = 0 at cruise throttle
 		// Specific total energy rate = _STE_rate_min is achieved when throttle is set to _throttle_setpoint_min
 		float throttle_predicted = 0.0f;
----
+
 		if (STE_rate_setpoint >= 0) {
 			// throttle is between cruise and maximum
 			throttle_predicted = throttle_cruise + STE_rate_setpoint / _STE_rate_max * (_throttle_setpoint_max - throttle_cruise);
