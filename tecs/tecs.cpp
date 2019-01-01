@@ -337,7 +337,6 @@ void TECS::_update_throttle_setpoint(const float throttle_cruise, const matrix::
 
 		// Add proportional and derivative control feedback to the predicted throttle and constrain to throttle limits
 		_throttle_setpoint = (_STE_error + _STE_rate_error * _throttle_damping_gain) * STE_to_throttle + throttle_predicted;
-
 		_throttle_setpoint = constrain(_throttle_setpoint, _throttle_setpoint_min, _throttle_setpoint_max);
 
 		// Rate limit the throttle demand
