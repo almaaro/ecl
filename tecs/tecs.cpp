@@ -329,7 +329,11 @@ void TECS::_update_throttle_setpoint(const float throttle_cruise, const matrix::
 	}
 
 	STE_rate_setpoint = STE_rate_setpoint + _throttle_integ_state;
+<<<<<<< HEAD
 >>>>>>> initial commit
+=======
+	STE_rate_setpoint = constrain(STE_rate_setpoint, _STE_rate_min, _STE_rate_max);
+>>>>>>> STE rate limit
 
 	// Calculate the throttle demand
 	if (_underspeed_detected) {
