@@ -450,8 +450,31 @@ void TECS::_update_throttle_setpoint(const float throttle_cruise, const matrix::
 				_throttle_integ_state = integ_state_max;
 
 			} else {
+				// If the throttle would be over max/min then decay the integrator to settle the compensated value at max/min throttle
+				// (maximum effect to _throttle_integ_state is +-0.1). Same method as with the pitch integrator. The reason is to
+				// prevent _throttle_integ_state from remaining at a very low value for example during descends that require zero throttle
+				// and drained _throttle_integ_state at the start of the descend. This will reduce airspeed undershoot at the end of the
+				// descend.
+
+				// Else add to the integrator value normally.
+
+				// If the absolute STE error is reducing, do not add to the integrator. This is to prevent overshoots.
+
+				float thr_integ = _throttle_setpoint + _throttle_integ_state;
+				if (thr_integ > _throttle_setpoint_max) {
+					_throttle_integ_state = _throttle_integ_state - (thr_integ - _throttle_setpoint_max) / _throttle_time_constant * _dt;
+
+				} else if (thr_integ < _throttle_setpoint_min) {
+					_throttle_integ_state = _throttle_integ_state - (thr_integ - _throttle_setpoint_min) / _throttle_time_constant * _dt;
+
+				} else if (fabsf(_STE_error) >= _STE_error_prev_abs) {
+					_throttle_integ_state = _throttle_integ_state + (_STE_error * _integrator_gain) * _dt * STE_to_throttle;
+				}
+
 				// Respect integrator limits during closed loop operation.
 				_throttle_integ_state = constrain(_throttle_integ_state, integ_state_min, integ_state_max);
+
+				_STE_error_prev_abs = fabsf(_STE_error);
 			}
 
 		} else {
