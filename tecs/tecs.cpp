@@ -367,6 +367,7 @@ void TECS::_update_throttle_setpoint(const float throttle_cruise, const matrix::
 		float throttle_predicted = 0.0f;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 		if (_advanced_thr_calc_initialized) {
 			const float as_squared = _EAS * _EAS;
@@ -376,6 +377,9 @@ void TECS::_update_throttle_setpoint(const float throttle_cruise, const matrix::
 =======
 
 >>>>>>> updates to ste rate calculations for throttle and fixing throttle/pitch PID loops
+=======
+---
+>>>>>>> initial commit
 		if (STE_rate_setpoint >= 0) {
 			// throttle is between cruise and maximum
 			throttle_predicted = throttle_cruise + STE_rate_setpoint / _STE_rate_max * (_throttle_setpoint_max - throttle_cruise);
