@@ -318,7 +318,6 @@ void TECS::_update_throttle_setpoint(const float throttle_cruise, const matrix::
 			} else {
 				throttle_predicted = (required_delta_v / delta_v_trim_as_level_adj) * (throttle_cruise - _throttle_setpoint_min) + _throttle_setpoint_min;
 			}
-
 		}
 		else{
 			if (STE_rate_setpoint >= 0) {
