@@ -440,10 +440,13 @@ void TECS::_update_throttle_setpoint(const float throttle_cruise, const matrix::
 			float integ_state_max = _throttle_setpoint_max - _throttle_setpoint + 0.1f;
 			float integ_state_min = _throttle_setpoint_min - _throttle_setpoint - 0.1f;
 
+<<<<<<< HEAD
 			// Calculate a throttle demand from the integrated total energy error
 			// This will be added to the total throttle demand to compensate for steady state errors
 			_throttle_integ_state = _throttle_integ_state + (_STE_error * _throttle_integrator_gain) * _dt * STE_to_throttle;
 
+=======
+>>>>>>> bug fix
 			if (_climbout_mode_active) {
 				// During climbout, set the integrator to maximum throttle to prevent transient throttle drop
 				// at end of climbout when we transition to closed loop throttle control
