@@ -304,34 +304,39 @@ void TECS::_update_throttle_setpoint(const float throttle_cruise, const matrix::
 	STE_rate_setpoint = STE_rate_setpoint + _STE_rate_error * _throttle_damping_gain;
 
 	// Add integral control
-	if (_integrator_gain > 0.0f && airspeed_sensor_enabled()) {
+	if (_integrator_gain > 0.0f && airspeed_sensor_enabled()) {	
 		// Calculate throttle integrator state upper and lower limits with allowance for
 		// 10% throttle saturation to accommodate noise on the demand.
-		float integ_state_max = _throttle_setpoint_max - _throttle_setpoint + 0.1f;
-		float integ_state_min = _throttle_setpoint_min - _throttle_setpoint - 0.1f;
+		float integrator_margin = 0.1f * (_STE_rate_max - _STE_rate_min);
+		float integ_state_max = _STE_rate_max - STE_rate_setpoint + integrator_margin;
+		float integ_state_min = _STE_rate_min - STE_rate_setpoint  - integrator_margin;
 
 		// Calculate a throttle demand from the integrated total energy error
 		// This will be added to the total throttle demand to compensate for steady state errors
-		_throttle_integ_state = _throttle_integ_state + (_STE_error * _integrator_gain) * _dt;
+		_STE_integ_state = _STE_integ_state + (_STE_error * _integrator_gain) * _dt;
 
 		if (_climbout_mode_active) {
 			// During climbout, set the integrator to maximum throttle to prevent transient throttle drop
 			// at end of climbout when we transition to closed loop throttle control
-			_throttle_integ_state = integ_state_max;
+			_STE_integ_state = integ_state_max;
 
 		} else {
 			// Respect integrator limits during closed loop operation.
-			_throttle_integ_state = constrain(_throttle_integ_state, integ_state_min, integ_state_max);
+			_STE_integ_state = constrain(_STE_integ_state, integ_state_min, integ_state_max);
 		}
 
 	} else {
-		_throttle_integ_state = 0.0f;
+		_STE_integ_state = 0.0f;
 	}
 
+<<<<<<< HEAD
 	STE_rate_setpoint = STE_rate_setpoint + _throttle_integ_state;
 <<<<<<< HEAD
 >>>>>>> initial commit
 =======
+=======
+	STE_rate_setpoint = STE_rate_setpoint + _STE_integ_state;
+>>>>>>> fixed integrator merge (intergrating in STE, not throttle units)
 	STE_rate_setpoint = constrain(STE_rate_setpoint, _STE_rate_min, _STE_rate_max);
 >>>>>>> STE rate limit
 
@@ -637,7 +642,7 @@ void TECS::_initialize_states(float pitch, float throttle_cruise, float baro_alt
 		_vert_pos_state = baro_altitude;
 		_tas_rate_state = 0.0f;
 		_tas_state = _EAS * EAS2TAS;
-		_throttle_integ_state =  0.0f;
+		_STE_integ_state =  0.0f;
 		_pitch_integ_state = 0.0f;
 		_last_throttle_setpoint = (_in_air ? throttle_cruise : 0.0f);;
 		_last_pitch_setpoint = constrain(pitch, _pitch_setpoint_min, _pitch_setpoint_max);
