@@ -107,7 +107,7 @@ public:
 	// setters for controller parameters
 	void set_time_const(float time_const) { _pitch_time_constant = time_const; }
 	void set_throttle_integrator_gain(float gain) { _throttle_integrator_gain = gain; }
-	void set_pitchintegrator_gain(float gain) { _pitch_integrator_gain = gain; }
+	void set_pitchi_ntegrator_gain(float gain) { _pitch_integrator_gain = gain; }
 
 	void set_min_sink_rate(float rate) { _min_sink_rate = rate; }
 	void set_max_sink_rate(float sink_rate) { _max_sink_rate = sink_rate; }
