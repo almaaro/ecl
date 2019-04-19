@@ -582,8 +582,8 @@ void TECS::_update_STE_rate_lim(float throttle_cruise)
 			const float lift = _auw * CONSTANTS_ONE_G;
 
 			// _Cd_i_specific: Vehicle specific induced drag coefficient, which equals to 1/2*S*rho*Cd_i
-			// Cd_i_specific = ... assuming planar wing with elliptical lift distribution
-			_cd_i_specific = lift * lift / (0.5f * M_PI_F * CONSTANTS_AIR_DENSITY_SEA_LEVEL_15C * _wingspan * _wingspan * _auw);
+			// Cd_i_specific = ... assuming planar wing. Efficiency factor of 0.85 for a starting point (should possibly be a parameter).
+			_cd_i_specific = lift * lift / (0.5f * M_PI_F * CONSTANTS_AIR_DENSITY_SEA_LEVEL_15C * _wingspan * _wingspan * _auw * 0.85f);
 
 			// _Cd_o_specific: Vehicle specific parasitic drag coefficient, which equals to 1/2*A*rho*Cd_o
 			// Cd_o_specific: subtracting induced drag from total drag at a known airspeed to calculate parasitic drag
