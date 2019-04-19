@@ -149,7 +149,7 @@ public:
 	float SEB_error() { return _SEB_error; }
 	float SEB_rate_error() { return _SEB_rate_error; }
 
-	float throttle_integ_state() { return _throttle_integ_state; }
+	float throttle_integ_state() { return _STE_integ_state; }
 	float pitch_integ_state() { return _pitch_integ_state; }
 
 	/**
@@ -211,7 +211,7 @@ private:
 	float _tas_state{0.0f};						///< complimentary filter state - true airspeed (m/sec)
 
 	// controller states
-	float _throttle_integ_state{0.0f};				///< throttle integrator state
+	float _STE_integ_state{0.0f};				///< throttle integrator state
 	float _pitch_integ_state{0.0f};					///< pitch integrator state (rad)
 	float _last_throttle_setpoint{0.0f};				///< throttle demand rate limiter state (1/sec)
 	float _last_pitch_setpoint{0.0f};				///< pitch demand rate limiter state (rad/sec)
