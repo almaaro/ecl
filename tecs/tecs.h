@@ -102,7 +102,8 @@ public:
 
 	// setters for controller parameters
 	void set_time_const(float time_const) { _pitch_time_constant = time_const; }
-	void set_integrator_gain(float gain) { _integrator_gain = gain; }
+	void set_throttle_integrator_gain(float gain) { _throttle_integrator_gain = gain; }
+	void set_pitchintegrator_gain(float gain) { _pitch_integrator_gain = gain; }
 
 	void set_min_sink_rate(float rate) { _min_sink_rate = rate; }
 	void set_max_sink_rate(float sink_rate) { _max_sink_rate = sink_rate; }
@@ -189,7 +190,8 @@ private:
 	float _throttle_time_constant{8.0f};				///< control time constant used by the throttle demand calculation (sec)
 	float _pitch_damping_gain{0.0f};				///< damping gain of the pitch demand calculation (sec)
 	float _throttle_damping_gain{0.0f};				///< damping gain of the throttle demand calculation (sec)
-	float _integrator_gain{0.0f};					///< integrator gain used by the throttle and pitch demand calculation
+	float _throttle_integrator_gain{0.0f};			///< integrator gain used by the throttle demand calculation
+	float _pitch_integrator_gain{0.0f};				///< integrator gain used by the pitch demand calculation
 	float _vert_accel_limit{0.0f};					///< magnitude of the maximum vertical acceleration allowed (m/sec**2)
 	float _load_factor_correction{0.0f};				///< gain from normal load factor increase to total energy rate demand (m**2/sec**3)
 	float _pitch_speed_weight{1.0f};				///< speed control weighting used by pitch demand calculation
