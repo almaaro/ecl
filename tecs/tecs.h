@@ -258,6 +258,7 @@ private:
 	float _STE_error{0.0f};						///< specific total energy error (m**2/sec**2)
 	float _STE_rate_error{0.0f};					///< specific total energy rate error (m**2/sec**3)
 	float _SEB_error{0.0f};						///< specific energy balance error (m**2/sec**2)
+	float _SEB_error_prev_abs{0.0};
 	float _SEB_rate_error{0.0f};					///< specific energy balance rate error (m**2/sec**3)
 
 	// time steps (non-fixed)
