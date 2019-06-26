@@ -465,10 +465,10 @@ void TECS::_update_throttle_setpoint(const float throttle_cruise, const matrix::
 
 				float thr_integ = _throttle_setpoint + _throttle_integ_state;
 				if (thr_integ > _throttle_setpoint_max) {
-					_throttle_integ_state = _throttle_integ_state - (thr_integ - _throttle_setpoint_max) / _throttle_time_constant * _dt;
+					_throttle_integ_state = _throttle_integ_state - (thr_integ - _throttle_setpoint_max) * _dt;
 
 				} else if (thr_integ < _throttle_setpoint_min) {
-					_throttle_integ_state = _throttle_integ_state - (thr_integ - _throttle_setpoint_min) / _throttle_time_constant * _dt;
+					_throttle_integ_state = _throttle_integ_state - (thr_integ - _throttle_setpoint_min) * _dt;
 
 				} else if (fabsf(_STE_error) >= _STE_error_prev_abs) {
 					_throttle_integ_state = _throttle_integ_state + (_STE_error * _integrator_gain) * _dt * STE_to_throttle;
