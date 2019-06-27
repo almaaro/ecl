@@ -225,7 +225,7 @@ void TECS::_update_height_setpoint(float desired, float state)
 
 	// Limit the rate of change of height demand to respect vehicle performance limits
 	// Limit the rate setpoint to 2 times the hgt setpoint rate to accomodate for short changes
-	_hgt_rate_setpoint = constrain(_hgt_rate_setpoint, -2.0f * _max_sink_rate, 2.0f * _max_climb_rate);
+	_hgt_rate_setpoint = constrain(_hgt_rate_setpoint, _max_sink_rate, _max_climb_rate);
 }
 
 void TECS::_detect_underspeed()
