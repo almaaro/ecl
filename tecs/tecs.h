@@ -293,6 +293,7 @@ private:
 	float _thrust_coefficient{0.0f};
 	float _delta_v_trim_as_max_climb{0.0f};
 	float _delta_v_trim_as_level{0.0f};
+	float _adv_thr_calc_as{0.0};
 
 	/**
 	 * Update the airspeed internal state using a second order complementary filter
