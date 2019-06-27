@@ -480,9 +480,6 @@ void TECS::_update_pitch_setpoint()
 
 	if (_integrator_gain > 0.0f) {
 
-		// Calculate pitch integrator input term
-		float pitch_integ_input = _SEB_error * _integrator_gain;
-
 		// Prevent the integrator changing in a direction that will increase pitch demand saturation
 		// Decay the integrator if the pitch demand from the previous time step is saturated
 		if (_pitch_setpoint_unc > _pitch_setpoint_max) {
@@ -491,12 +488,9 @@ void TECS::_update_pitch_setpoint()
 		} else if (_pitch_setpoint_unc < _pitch_setpoint_min) {
 			_pitch_integ_state = _pitch_integ_state - (_pitch_setpoint_unc - _pitch_setpoint_min) * _dt;
 
-		} else if (fabsf(_SEB_error) > _SEB_error_prev_abs) {
-			// Update the pitch integrator state if the SEB error is diverging
-			_pitch_integ_state = _pitch_integ_state + pitch_integ_input * _dt;
+		} else {
+			_pitch_integ_state = _pitch_integ_state + _SEB_rate_error * _integrator_gain * _dt;
 		}
-
-		_SEB_error_prev_abs = fabsf(_SEB_error);
 
 	} else {
 		_pitch_integ_state = 0.0f;
