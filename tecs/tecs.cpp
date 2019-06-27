@@ -287,7 +287,7 @@ void TECS::_update_throttle_setpoint(const float throttle_cruise, const matrix::
 	// to reduce the effect of accelerometer noise
 	_STE_rate_error = 0.2f * (STE_rate_setpoint - _SPE_rate - _SKE_rate) + 0.8f * _STE_rate_error;
 
-	// Add feed forward and proportional control
+	// Change to feed forward and proportional control
 	STE_rate_setpoint = _SPE_rate_setpoint_ff + _SKE_rate_setpoint_ff + _STE_rate_error * _throttle_damping_gain;
 
 	// Add integral control
