@@ -337,8 +337,6 @@ void TECS::_update_throttle_setpoint(const float throttle_cruise, const matrix::
 
 				// Else add to the integrator value normally.
 
-				// If the absolute STE error is reducing, do not add to the integrator. This is to prevent overshoots.
-
 				float thr_integ = _throttle_setpoint + _throttle_integ_state;
 				if (thr_integ > _throttle_setpoint_max) {
 					_throttle_integ_state = _throttle_integ_state - (thr_integ - _throttle_setpoint_max) * _dt;
@@ -346,14 +344,12 @@ void TECS::_update_throttle_setpoint(const float throttle_cruise, const matrix::
 				} else if (thr_integ < _throttle_setpoint_min) {
 					_throttle_integ_state = _throttle_integ_state - (thr_integ - _throttle_setpoint_min) * _dt;
 
-				} else if (fabsf(_STE_error) >= _STE_error_prev_abs) {
-					_throttle_integ_state = _throttle_integ_state + (_STE_error * _integrator_gain) * _dt * STE_to_throttle;
+				} else {
+					_throttle_integ_state = _throttle_integ_state + (_STE_rate_error * _integrator_gain) * _dt * STE_to_throttle;
 				}
 
 				// Respect integrator limits during closed loop operation.
 				_throttle_integ_state = constrain(_throttle_integ_state, integ_state_min, integ_state_max);
-
-				_STE_error_prev_abs = fabsf(_STE_error);
 			}
 
 		} else {
