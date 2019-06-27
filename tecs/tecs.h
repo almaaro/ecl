@@ -250,7 +250,9 @@ private:
 	float _TAS_setpoint_last{0.0f};					///< previous true airpeed demand (m/sec)
 	float _EAS_setpoint{0.0f};					///< Equivalent airspeed demand (m/sec)
 	float _TAS_setpoint_adj{0.0f};					///< true airspeed demand tracked by the TECS algorithm (m/sec)
+	float _TAS_setpoint_adj_prev{0.0};
 	float _TAS_rate_setpoint{0.0f};					///< true airspeed rate demand tracked by the TECS algorithm (m/sec**2)
+	float _TAS_rate_setpoint_ff{0.0};
 
 	// height demand calculations
 	float _hgt_setpoint{0.0f};					///< demanded height tracked by the TECS algorithm (m)
@@ -259,8 +261,12 @@ private:
 	float _hgt_setpoint_adj{0.0f};					///< demanded height used by the control loops after all filtering has been applied (m)
 	float _hgt_setpoint_adj_prev{0.0f};				///< value of _hgt_setpoint_adj from previous frame (m)
 	float _hgt_rate_setpoint{0.0f};					///< demanded climb rate tracked by the TECS algorithm
+<<<<<<< HEAD
 	float _position_control_hgt_rate{0.0};
 	bool _use_position_control_hgt_rate{false};
+=======
+	float _hgt_rate_setpoint_ff{0.0};
+>>>>>>> added feed forward SKE and SPE rates
 
 	// vehicle physical limits
 	float _pitch_setpoint_unc{0.0f};				///< pitch demand before limiting (rad)
@@ -275,8 +281,10 @@ private:
 	float _SPE_setpoint{0.0f};					///< specific potential energy demand (m**2/sec**2)
 	float _SKE_setpoint{0.0f};					///< specific kinetic energy demand (m**2/sec**2)
 	float _SPE_rate_setpoint{0.0f};					///< specific potential energy rate demand (m**2/sec**3)
+	float _SPE_rate_setpoint_ff{0.0f};
 	float _SPE_rate_setpoint_pitch{0.0f};				///< actual specific potential energy rate demand (m**2/sec**3)
 	float _SKE_rate_setpoint{0.0f};					///< specific kinetic energy rate demand (m**2/sec**3)
+	float _SKE_rate_setpoint_ff{0.0f};
 	float _SPE_estimate{0.0f};					///< specific potential energy estimate (m**2/sec**2)
 	float _SKE_estimate{0.0f};					///< specific kinetic energy estimate (m**2/sec**2)
 	float _SPE_rate{0.0f};						///< specific potential energy rate estimate (m**2/sec**3)

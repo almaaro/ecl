@@ -176,9 +176,13 @@ void TECS::_update_speed_setpoint()
 
 	_TAS_setpoint_adj = constrain(_TAS_setpoint, _TAS_min, _TAS_max);
 
+	_TAS_rate_setpoint_ff = constrain((_TAS_setpoint_adj - _TAS_setpoint_adj_prev) / _dt, velRateMin, velRateMax);
+
 	// calculate the demanded rate of change of speed proportional to speed error
 	// and apply performance limits
 	_TAS_rate_setpoint = constrain((_TAS_setpoint_adj - _tas_state) * _speed_error_gain, velRateMin, velRateMax);
+
+	_TAS_setpoint_adj_prev = _TAS_setpoint_adj;
 
 }
 
@@ -212,6 +216,9 @@ void TECS::_update_height_setpoint(float desired, float state)
 
 	// Apply a first order noise filter
 	_hgt_setpoint_adj = 0.1f * _hgt_setpoint + 0.9f * _hgt_setpoint_adj_prev;
+
+	// Calculate the height setpoint ff rate
+	_hgt_rate_setpoint_ff = (_hgt_setpoint_adj - _hgt_setpoint_adj_prev) / _dt;
 
 	// Calculate the demanded climb rate proportional to height error plus a feedforward term to provide
 	// tight tracking during steady climb and descent manoeuvres.
@@ -264,6 +271,10 @@ void TECS::_update_energy_estimates()
 	_SPE_rate_setpoint = _hgt_rate_setpoint * CONSTANTS_ONE_G; // potential energy rate of change
 	_SKE_rate_setpoint = _tas_state * _TAS_rate_setpoint; // kinetic energy rate of change
 
+	// Calculate specific energy ff rate demands in units of (m**2/sec**3)
+	_SPE_rate_setpoint_ff = _hgt_rate_setpoint_ff * CONSTANTS_ONE_G; // potential energy rate of change
+	_SKE_rate_setpoint_ff = _tas_state * _TAS_rate_setpoint_ff; // kinetic energy rate of change
+
 	// Calculate specific energies in units of (m**2/sec**2)
 	_SPE_estimate = _vert_pos_state * CONSTANTS_ONE_G; // potential energy
 	_SKE_estimate = 0.5f * _tas_state * _tas_state; // kinetic energy
@@ -300,8 +311,8 @@ void TECS::_update_throttle_setpoint(const float throttle_cruise, const matrix::
 	// to reduce the effect of accelerometer noise
 	_STE_rate_error = 0.2f * (STE_rate_setpoint - _SPE_rate - _SKE_rate) + 0.8f * _STE_rate_error;
 
-	// Add proportional control
-	STE_rate_setpoint = STE_rate_setpoint + _STE_rate_error * _throttle_damping_gain;
+	// Add feed forward and proportional control
+	STE_rate_setpoint = _SPE_rate_setpoint_ff + _SKE_rate_setpoint_ff + _STE_rate_error * _throttle_damping_gain;
 
 	// Add integral control
 	if (_integrator_gain > 0.0f && airspeed_sensor_enabled()) {	
