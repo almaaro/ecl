@@ -175,7 +175,7 @@ void TECS::_update_speed_setpoint()
 	float velRateMin = _STE_rate_min / _tas_state;
 
 	// Apply a first order noise filter
-	_TAS_setpoint_adj = 0.1f * constrain(_TAS_setpoint, _TAS_min, _TAS_max) + 0.9 * _TAS_setpoint_adj_prev;
+	_TAS_setpoint_adj = 0.1f * constrain(_TAS_setpoint, _TAS_min, _TAS_max) + 0.9f * _TAS_setpoint_adj_prev;
 
 	_TAS_rate_setpoint_ff = constrain((_TAS_setpoint_adj - _TAS_setpoint_adj_prev) / _dt, velRateMin, velRateMax);
 
