@@ -252,7 +252,8 @@ private:
 	float _TAS_setpoint_adj{0.0f};					///< true airspeed demand tracked by the TECS algorithm (m/sec)
 	float _TAS_setpoint_adj_prev{0.0};
 	float _TAS_rate_setpoint{0.0f};					///< true airspeed rate demand tracked by the TECS algorithm (m/sec**2)
-	float _TAS_rate_setpoint_ff{0.0};
+	float _TAS_rate_setpoint_ff{0.0f};
+	float _TAS_rate_setpoint_ff_prev{0.0f};
 
 	// height demand calculations
 	float _hgt_setpoint{0.0f};					///< demanded height tracked by the TECS algorithm (m)
