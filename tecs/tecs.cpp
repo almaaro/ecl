@@ -163,23 +163,24 @@ void TECS::_update_speed_setpoint()
 		_TAS_setpoint = _TAS_min;
 	}
 
-	_TAS_setpoint = constrain(_TAS_setpoint, _TAS_min, _TAS_max);
-
 	// Calculate limits for the demanded rate of change of speed based on physical performance limits
 	// with a 50% margin to allow the total energy controller to correct for errors.
 	float velRateMax = _STE_rate_max / _tas_state;
 	float velRateMin = _STE_rate_min / _tas_state;
 
-	// Apply a first order noise filter
-	_TAS_setpoint_adj = 0.1f * constrain(_TAS_setpoint, _TAS_min, _TAS_max) + 0.9f * _TAS_setpoint_adj_prev;
+	_TAS_setpoint_adj = constrain(_TAS_setpoint, _TAS_min, _TAS_max);
 
 	_TAS_rate_setpoint_ff = constrain((_TAS_setpoint_adj - _TAS_setpoint_adj_prev) / _dt, velRateMin, velRateMax);
+
+	// Apply a first order noise filter
+	_TAS_rate_setpoint_ff = 0.1f * _TAS_rate_setpoint_ff + 0.9f * _TAS_rate_setpoint_ff_prev;
 
 	// calculate the demanded rate of change of speed proportional to speed error
 	// and apply performance limits
 	_TAS_rate_setpoint = constrain((_TAS_setpoint_adj - _tas_state) * _speed_error_gain, velRateMin, velRateMax);
 
 	_TAS_setpoint_adj_prev = _TAS_setpoint_adj;
+	_TAS_rate_setpoint_ff_prev = _TAS_rate_setpoint_ff;
 
 }
 
@@ -224,16 +225,7 @@ void TECS::_update_height_setpoint(float desired, float state)
 	_hgt_setpoint_adj_prev = _hgt_setpoint_adj;
 
 	// Limit the rate of change of height demand to respect vehicle performance limits
-	if (_hgt_rate_setpoint > _max_climb_rate) {
-		_hgt_rate_setpoint = _max_climb_rate;
-
-	} else if (_hgt_rate_setpoint < -_max_sink_rate) {
-		_hgt_rate_setpoint = -_max_sink_rate;
-	}
-
-	// Limit the rate of change of height demand to respect vehicle performance limits
-	// Limit the rate setpoint to 2 times the hgt setpoint rate to accomodate for short changes
-	_hgt_rate_setpoint = constrain(_hgt_rate_setpoint, _max_sink_rate, _max_climb_rate);
+	_hgt_rate_setpoint = constrain(_hgt_rate_setpoint, -_max_sink_rate, _max_climb_rate);
 }
 
 void TECS::_detect_underspeed()
