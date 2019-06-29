@@ -159,7 +159,7 @@ public:
 	float TAS_setpoint_adj() { return _TAS_setpoint_adj; }
 	float tas_state() { return _tas_state; }
 
-	float hgt_rate_setpoint() { return _hgt_rate_setpoint; }
+	float hgt_rate_setpoint() { return _hgt_rate_setpoint_actual; }
 	float vert_vel_state() { return _vert_vel_state; }
 
 	float TAS_rate_setpoint() { return _TAS_rate_setpoint; }
@@ -261,6 +261,7 @@ private:
 	float _hgt_rate_setpoint{0.0f};					///< demanded climb rate tracked by the TECS algorithm
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	float _position_control_hgt_rate{0.0};
 	bool _use_position_control_hgt_rate{false};
 =======
@@ -268,6 +269,9 @@ private:
 >>>>>>> added feed forward SKE and SPE rates
 =======
 >>>>>>> back to proportional STE rate error control.
+=======
+	float _hgt_rate_setpoint_actual{0.0f};			///< actual climb rate tracked by the TECS algorithm
+>>>>>>> bug fixes
 
 	// vehicle physical limits
 	float _pitch_setpoint_unc{0.0f};				///< pitch demand before limiting (rad)
