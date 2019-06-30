@@ -249,7 +249,7 @@ void TECS::_update_energy_estimates()
 
 	// Calculate specific energy rate demands in units of (m**2/sec**3)
 	_SPE_rate_setpoint = _hgt_rate_setpoint * CONSTANTS_ONE_G; // potential energy rate of change
-	_SKE_rate_setpoint = _tas_state * _TAS_rate_setpoint; // kinetic energy rate of change
+	_SKE_rate_setpoint = _tas_state * _TAS_rate_setpoint + _SKE_rate_demand_flaps; // kinetic energy rate of change
 
 	// Calculate specific energies in units of (m**2/sec**2)
 	_SPE_estimate = _vert_pos_state * CONSTANTS_ONE_G; // potential energy
@@ -265,8 +265,11 @@ void TECS::_update_throttle_setpoint(const float throttle_cruise, const matrix::
 	// Calculate total energy error
 	_STE_error = _SPE_setpoint - _SPE_estimate + _SKE_setpoint - _SKE_estimate;
 
+	float as_ratio = _tas_state / _indicated_airspeed_trim;
+	_STE_rate_demand_flaps = 0.2f * _flaps_applied * _STE_rate_flaps * as_ratio*as_ratio + 0.8f * _STE_rate_demand_flaps;
+
 	// Calculate demanded rate of change of total energy, respecting vehicle limits
-	float STE_rate_setpoint = constrain((_SPE_rate_setpoint + _SKE_rate_setpoint), _STE_rate_min, _STE_rate_max);
+	float STE_rate_setpoint = constrain((_SPE_rate_setpoint + _SKE_rate_setpoint + _STE_rate_demand_flaps), _STE_rate_min, _STE_rate_max);
 
 	// Calculate the total energy rate error, applying a first order IIR filter
 	// to reduce the effect of accelerometer noise
@@ -535,6 +538,8 @@ void TECS::_update_STE_rate_lim()
 
 	// Calculate the specific total energy lower rate limits from the min throttle sink rate
 	_STE_rate_min = - _min_sink_rate * CONSTANTS_ONE_G;
+
+	_STE_rate_flaps = (_min_sink_rate_flaps - _min_sink_rate) * CONSTANTS_ONE_G;
 }
 
 void TECS::update_pitch_throttle(const matrix::Dcmf &rotMat, float pitch, float baro_altitude, float hgt_setpoint,

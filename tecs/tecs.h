@@ -127,6 +127,9 @@ public:
 
 	void set_roll_throttle_compensation(float compensation) { _load_factor_correction = compensation; }
 
+	void set_flaps_applied(float flaps) { _flaps_applied = flaps; }
+	void set_min_sink_rate_flaps(float rate) { _min_sink_rate_flaps = rate; }
+
 	// TECS status
 	uint64_t timestamp() { return _pitch_update_timestamp; }
 	ECL_TECS_MODE tecs_mode() { return _tecs_mode; }
@@ -272,6 +275,13 @@ private:
 	bool _airspeed_enabled{false};					///< true when airspeed use has been enabled
 	bool _states_initialized{false};					///< true when TECS states have been iniitalized
 	bool _in_air{false};						///< true when the vehicle is flying
+
+	// flaps
+	float _flaps_applied{0.0f};
+	float _min_sink_rate_flaps{1.0f};
+	float _STE_rate_flaps{0.0f};
+	float _STE_rate_demand_flaps{0.0f};			///< additional drag from flaps
+
 
 	/**
 	 * Update the airspeed internal state using a second order complementary filter
