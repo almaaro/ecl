@@ -384,20 +384,17 @@ void TECS::_update_pitch_setpoint()
 	*/
 
 	// Calculate the weighting applied to control of specific kinetic energy error
-	float SKE_weighting = constrain(_pitch_speed_weight, 0.0f, 2.0f);
+	float SKE_weighting = constrain(0.5f * _pitch_speed_weight, 0.0f, 1.0f);
 
 	if ((_underspeed_detected || _climbout_mode_active) && airspeed_sensor_enabled()) {
-		SKE_weighting = 2.0f;
+		SKE_weighting = 1.0f;
 
 	} else if (!airspeed_sensor_enabled()) {
 		SKE_weighting = 0.0f;
 	}
 
 	// Calculate the weighting applied to control of specific potential energy error
-	float SPE_weighting = 2.0f - SKE_weighting;
-
-	SKE_weighting = min(SKE_weighting, 1.0f);
-	SPE_weighting = min(SPE_weighting, 1.0f);
+	float SPE_weighting = 1.0f - SKE_weighting;
 
 	// Calculate the specific energy balance demand which specifies how the available total
 	// energy should be allocated to speed (kinetic energy) and height (potential energy)
