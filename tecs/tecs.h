@@ -159,7 +159,7 @@ public:
 	float TAS_setpoint_adj() { return _TAS_setpoint_adj; }
 	float tas_state() { return _tas_state; }
 
-	float hgt_rate_setpoint() { return _hgt_rate_setpoint_actual; }
+	float hgt_rate_setpoint() { return _hgt_rate_setpoint; }
 	float vert_vel_state() { return _vert_vel_state; }
 
 	float TAS_rate_setpoint() { return _TAS_rate_setpoint; }
@@ -262,6 +262,7 @@ private:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	float _position_control_hgt_rate{0.0};
 	bool _use_position_control_hgt_rate{false};
 =======
@@ -272,6 +273,8 @@ private:
 =======
 	float _hgt_rate_setpoint_actual{0.0f};			///< actual climb rate tracked by the TECS algorithm
 >>>>>>> bug fixes
+=======
+>>>>>>> _STE_rate_setpoint_pitch is not a good idea.
 
 	// vehicle physical limits
 	float _pitch_setpoint_unc{0.0f};				///< pitch demand before limiting (rad)
@@ -286,7 +289,6 @@ private:
 	float _SPE_setpoint{0.0f};					///< specific potential energy demand (m**2/sec**2)
 	float _SKE_setpoint{0.0f};					///< specific kinetic energy demand (m**2/sec**2)
 	float _SPE_rate_setpoint{0.0f};					///< specific potential energy rate demand (m**2/sec**3)
-	float _SPE_rate_setpoint_pitch{0.0f};				///< actual specific potential energy rate demand (m**2/sec**3)
 	float _SKE_rate_setpoint{0.0f};					///< specific kinetic energy rate demand (m**2/sec**3)
 	float _SPE_estimate{0.0f};					///< specific potential energy estimate (m**2/sec**2)
 	float _SKE_estimate{0.0f};					///< specific kinetic energy estimate (m**2/sec**2)
