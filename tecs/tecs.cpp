@@ -259,7 +259,7 @@ void TECS::_update_throttle_setpoint(const float throttle_cruise, const matrix::
 	_STE_error = _SPE_setpoint - _SPE_estimate + _SKE_setpoint - _SKE_estimate;
 
 	// Calculate demanded rate of change of total energy
-	float STE_rate_setpoint = _SPE_rate_setpoint_pitch + _SKE_rate_setpoint;
+	float STE_rate_setpoint = _SPE_rate_setpoint + _SKE_rate_setpoint;
 
 	// Calculate the total energy rate error, applying a first order IIR filter
 	// to reduce the effect of accelerometer noise
@@ -384,17 +384,20 @@ void TECS::_update_pitch_setpoint()
 	*/
 
 	// Calculate the weighting applied to control of specific kinetic energy error
-	float SKE_weighting = constrain(0.5f * _pitch_speed_weight, 0.0f, 1.0f);
+	float SKE_weighting = constrain(_pitch_speed_weight, 0.0f, 2.0f);
 
 	if ((_underspeed_detected || _climbout_mode_active) && airspeed_sensor_enabled()) {
-		SKE_weighting = 1.0f;
+		SKE_weighting = 2.0f;
 
 	} else if (!airspeed_sensor_enabled()) {
 		SKE_weighting = 0.0f;
 	}
 
 	// Calculate the weighting applied to control of specific potential energy error
-	float SPE_weighting = 1.0f - SKE_weighting;
+	float SPE_weighting = 2.0f - SKE_weighting;
+
+	SPE_weighting = min(SPE_weighting, 1.0f);
+	SKE_weighting = min(SKE_weighting, 1.0f);
 
 	// Calculate the specific energy balance demand which specifies how the available total
 	// energy should be allocated to speed (kinetic energy) and height (potential energy)
@@ -435,22 +438,20 @@ void TECS::_update_pitch_setpoint()
 	// Calculate a specific energy correction that doesn't include the integrator contribution
 	float SEB_correction = _SEB_rate_error * _pitch_damping_gain + SEB_rate_setpoint;
 
-	// Divide it into kinetic and potential proportions for throttle calculations.
-	float SEB_rate_setpoint_pitch = constrain(SEB_correction / climb_angle_to_SEB_rate, _pitch_setpoint_min, _pitch_setpoint_max) * climb_angle_to_SEB_rate;
-	_SPE_rate_setpoint_pitch = SEB_rate_setpoint_pitch * SPE_weighting / (SKE_weighting + SPE_weighting);
+	SEB_correction = constrain(SEB_correction / climb_angle_to_SEB_rate, _pitch_setpoint_min, _pitch_setpoint_max) * climb_angle_to_SEB_rate;
 
 	// During climbout, bias the demanded pitch angle so that a zero speed error produces a pitch angle
 	// demand equal to the minimum pitch angle set by the mission plan. This prevents the integrator
 	// having to catch up before the nose can be raised to reduce excess speed during climbout.
 	if (_climbout_mode_active) {
-		SEB_rate_setpoint_pitch += _pitch_setpoint_min * climb_angle_to_SEB_rate;
+		SEB_correction += _pitch_setpoint_min * climb_angle_to_SEB_rate;
 	}
 
 	// Sum the correction terms and convert to a pitch angle demand. This calculation assumes:
 	// a) The climb angle follows pitch angle with a lag that is small enough not to destabilise the control loop.
 	// b) The offset between climb angle and pitch angle (angle of attack) is constant, excluding the effect of
 	// pitch transients due to control action or turbulence.
-	_pitch_setpoint_unc = (SEB_rate_setpoint_pitch + _pitch_integ_state) / climb_angle_to_SEB_rate;
+	_pitch_setpoint_unc = (SEB_correction + _pitch_integ_state) / climb_angle_to_SEB_rate;
 	_pitch_setpoint = constrain(_pitch_setpoint_unc, _pitch_setpoint_min, _pitch_setpoint_max);
 
 	// Comply with the specified vertical acceleration limit by applying a pitch rate limit
@@ -464,9 +465,6 @@ void TECS::_update_pitch_setpoint()
 	}
 
 	_last_pitch_setpoint = _pitch_setpoint;
-
-	// Calculate the actual height rate setpoint derived from the pitch setpoint. This is used for logging.
-	_hgt_rate_setpoint_actual = SEB_rate_setpoint_pitch / CONSTANTS_ONE_G;
 
 }
 
