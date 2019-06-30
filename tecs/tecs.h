@@ -138,6 +138,9 @@ public:
 	void set_use_advanced_thr_calculation(bool value) {_use_advanced_thr_calculation = value; }
 	void set_motor_airstream_at_elevator_scaler(float scaler) {_motor_airstream_at_elevator_scaler = scaler; }
 
+	void set_flaps_applied(float flaps) { _flaps_applied = flaps; }
+	void set_min_sink_rate_flaps(float rate) { _min_sink_rate_flaps = rate; }
+
 	// TECS status
 	uint64_t timestamp() { return _pitch_update_timestamp; }
 	ECL_TECS_MODE tecs_mode() { return _tecs_mode; }
@@ -304,6 +307,12 @@ private:
 	float _required_as_elev{0.0f};
 	float _required_delta_v{0.0f};
 	float _motor_airstream_at_elevator_scaler{0.0f};
+
+	// flaps
+	float _flaps_applied{0.0f};
+	float _min_sink_rate_flaps{1.0f};
+	float _STE_rate_flaps{0.0f};
+	float _STE_rate_demand_flaps{0.0f};			///< additional drag from flaps
 
 	/**
 	 * Update the airspeed internal state using a second order complementary filter
