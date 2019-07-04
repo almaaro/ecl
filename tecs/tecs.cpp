@@ -269,6 +269,7 @@ void TECS::_update_throttle_setpoint(const float throttle_cruise, const matrix::
 	// Calculate total energy error
 	_STE_error = _SPE_setpoint - _SPE_estimate + _SKE_setpoint - _SKE_estimate;
 
+	// The flaps only increase the parasitic drag (which is ~V^2) because the lift remains constant.
 	float as_ratio = _tas_state / _indicated_airspeed_trim;
 	_STE_rate_demand_flaps = 0.2f * _flaps_applied * _STE_rate_flaps * as_ratio*as_ratio + 0.8f * _STE_rate_demand_flaps;
 
