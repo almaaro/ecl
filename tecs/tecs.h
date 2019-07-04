@@ -127,8 +127,13 @@ public:
 
 	void set_roll_throttle_compensation(float compensation) { _load_factor_correction = compensation; }
 
-	void set_flaps_applied(float flaps) { _flaps_applied = flaps; }
-	void set_min_sink_rate_flaps(float rate) { _min_sink_rate_flaps = rate; }
+	void set_landing_flaps_applied(float flaps) { _landing_flaps_applied = flaps; }
+	void set_min_sink_rate_landing_flaps(float rate) { _min_sink_rate_landing_flaps = rate; }
+
+	void set_pitchsp_offset_rad(float offset) { _pitchsp_offset_rad = offset; }
+	void set_pitchsp_offset_landing_flaps_rad(float offset) { _pitchsp_offset_landing_flaps_rad = offset; }
+	void set_cl_to_alpha_rad_slope(float slope) { _cl_to_alpha_rad_slope = slope; }
+	void set_wing_area(float a) { _wing_area = a; }
 
 	// TECS status
 	uint64_t timestamp() { return _pitch_update_timestamp; }
@@ -277,10 +282,21 @@ private:
 	bool _in_air{false};						///< true when the vehicle is flying
 
 	// flaps
-	float _flaps_applied{0.0f};
-	float _min_sink_rate_flaps{1.0f};
+	float _landing_flaps_applied{0.0f};
+	float _min_sink_rate_landing_flaps{1.0f};
 	float _STE_rate_flaps{0.0f};
 	float _STE_rate_demand_flaps{0.0f};			///< additional drag from flaps
+
+	// pitch offsets
+	float _pitchsp_offset_rad{0.0f};
+	float _pitchsp_offset_landing_flaps_rad{0.0f};
+	float _cl_to_alpha_rad_slope{0.0f};
+	float _cl_offset_clean_cruise_trim_as{0.0f};
+	float _cl_offset_landing_flaps_cruise_trim_as{0.0f};
+	float _wing_area{0.0f};
+	float _cl_cruise_trim_as{0.0f};
+	float _cl_coefficient{0.0f};
+	bool _pitchsp_offset_initialized{false};
 
 
 	/**
@@ -333,5 +349,10 @@ private:
 	 * Calculate specific total energy rate limits
 	 */
 	void _update_STE_rate_lim();
+
+	/**
+	 * Initialize the wing's lift profile calculations
+	 */
+	void _initialize_pitchsp_offset();
 
 };
