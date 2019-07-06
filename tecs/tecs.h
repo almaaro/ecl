@@ -328,6 +328,7 @@ private:
 	float _wing_area{0.0f};
 	float _cl_cruise_trim_as{0.0f};
 	float _cl_coefficient{0.0f};
+	float _cl_prev{0.0};
 	bool _pitchsp_offset_initialized{false};
 
 	/**
