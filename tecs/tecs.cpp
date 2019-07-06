@@ -519,6 +519,7 @@ void TECS::_update_pitch_setpoint()
 	//Add a low pass filter to simulate the optimal airspeed change
 	float gain = _speed_error_gain * _dt;
 	float cl = gain * _cl_coefficient / max(1.0f, _EAS_setpoint * _EAS_setpoint) + (1.0f - gain) * _cl_prev;
+	_cl_prev = cl;
 
 	//Then calculate the needed pitch. Take the flap setting into account.
 	float offset = (1.0f - _landing_flaps_applied) * _pitchsp_offset_rad + _landing_flaps_applied * _pitchsp_offset_landing_flaps_rad;
