@@ -572,7 +572,7 @@ void TECS::_update_STE_rate_lim(float throttle_cruise)
 
 		if (!_advanced_thr_calc_initialized){
 			// Some error checks
-			if (_auw < 0.01f || _wingspan < 0.01f || _indicated_airspeed_max > 0.95f * _indicated_airspeed_max ||
+			if (_auw < 0.01f || _wingspan < 0.01f || _indicated_airspeed_trim > 0.95f * _indicated_airspeed_max ||
 					throttle_cruise > 0.95f * _throttle_setpoint_max){
 				goto throttle_calculation_default;
 			}
