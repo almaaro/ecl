@@ -337,6 +337,7 @@ void TECS::_update_throttle_setpoint(const float throttle_cruise, const matrix::
 
 				// Else add to the integrator value normally.
 
+				//MERGING: change thr_integ to ste_integ, _throttle_setpoint to STE_setpoint and _throttle_integ_state to STE_integ_state
 				float thr_integ = _throttle_setpoint + _throttle_integ_state;
 				if (thr_integ > _throttle_setpoint_max) {
 					_throttle_integ_state = _throttle_integ_state - (thr_integ - _throttle_setpoint_max) * _dt;
