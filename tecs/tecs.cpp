@@ -533,8 +533,6 @@ void TECS::_initialize_states(float pitch, float throttle_cruise, float baro_alt
 			_dt = DT_DEFAULT;
 		}
 
-		_advanced_thr_calc_initialized = false;
-
 	} else if (_climbout_mode_active) {
 		// During climbout use the lower pitch angle limit specified by the
 		// calling controller
