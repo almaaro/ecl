@@ -267,9 +267,10 @@ void TECS::_update_throttle_setpoint(const float throttle_cruise, const matrix::
 
 	// The flaps only increase the parasitic drag (which is ~V^2) because the lift remains constant.
 	// Add a low pass filter to simulate the optimal airspeed change
-	float as_ratio = _EAS_setpoint / _indicated_airspeed_trim;
 	float gain = _speed_error_gain * _dt;
-	_STE_rate_demand_flaps = gain * _landing_flaps_applied * _STE_rate_flaps * as_ratio*as_ratio + (1.0f - gain) * _STE_rate_demand_flaps;
+	float as_ratio = gain * _EAS_setpoint / _indicated_airspeed_trim + (1.0f - gain) * _flaps_STE_demand_as_ratio_prev;
+	_flaps_STE_demand_as_ratio_prev = as_ratio;
+	_STE_rate_demand_flaps = _landing_flaps_applied * _STE_rate_flaps * as_ratio * as_ratio;
 
 	// Calculate demanded rate of change of total energy, respecting vehicle limits
 	float STE_rate_setpoint = constrain((_SPE_rate_setpoint + _SKE_rate_setpoint + _STE_rate_demand_flaps), _STE_rate_min, _STE_rate_max);
@@ -519,6 +520,7 @@ void TECS::_initialize_states(float pitch, float throttle_cruise, float baro_alt
 		_underspeed_detected = false;
 		_uncommanded_descent_recovery = false;
 		_STE_rate_error = 0.0f;
+		_flaps_STE_demand_as_ratio_prev = 1.0f;
 
 		if (_dt > DT_MAX || _dt < DT_MIN) {
 			_dt = DT_DEFAULT;
