@@ -294,6 +294,8 @@ private:
 	float _delta_v_trim_as_max_climb{0.0f};
 	float _delta_v_trim_as_level{0.0f};
 	float _adv_thr_calc_as{0.0};
+	float _airspeed_time_constant{0.0f};
+	float _EAS_setpoint_STE_rate_lim_calc_prev{0.0};
 
 	/**
 	 * Update the airspeed internal state using a second order complementary filter

@@ -176,6 +176,9 @@ void TECS::_update_speed_setpoint()
 	// and apply performance limits
 	_TAS_rate_setpoint = constrain((_TAS_setpoint_adj - _tas_state) * _speed_error_gain, velRateMin, velRateMax);
 
+	// Update the airspeed time constant
+	_airspeed_time_constant = constrain(_speed_error_gain * _dt, 0.0f, 1.0f);
+
 }
 
 void TECS::_update_height_setpoint(float desired, float state)
@@ -528,6 +531,7 @@ void TECS::_initialize_states(float pitch, float throttle_cruise, float baro_alt
 		_underspeed_detected = false;
 		_uncommanded_descent_recovery = false;
 		_STE_rate_error = 0.0f;
+		_EAS_setpoint_STE_rate_lim_calc_prev = _indicated_airspeed_trim;
 
 		if (_dt > DT_MAX || _dt < DT_MIN) {
 			_dt = DT_DEFAULT;
@@ -626,21 +630,23 @@ void TECS::_update_STE_rate_lim(float throttle_cruise)
 			// Choose from _EAS and _EAS_setpoint the value to be used in the calculations that provides a grater safety margin:
 			// If the airspeed is greater than the setpoint, choose the one that will result in smaller total drag
 			// If the airsepeed is smaller than the setpoint, choose the one that will result in greater total drag.
+			float EAS_sp_adj = _airspeed_time_constant * _EAS_setpoint + (1.0f - _airspeed_time_constant) * _EAS_setpoint_STE_rate_lim_calc_prev;
+			_EAS_setpoint_STE_rate_lim_calc_prev = EAS_sp_adj;
 			float drag = _cd_i_specific / _EAS /_EAS + _cd_o_specific * _EAS * _EAS;
-			float drag_EAS_setpoint = _cd_i_specific / _EAS_setpoint /_EAS_setpoint + _cd_o_specific * _EAS_setpoint * _EAS_setpoint;
+			float drag_EAS_setpoint = _cd_i_specific / EAS_sp_adj /EAS_sp_adj + _cd_o_specific * EAS_sp_adj * EAS_sp_adj;
 
 			//default to _EAS
 			_adv_thr_calc_as = _EAS;
 
-			if (_EAS_setpoint > _EAS) {
+			if (EAS_sp_adj > _EAS) {
 				if (drag_EAS_setpoint > drag) {
 					drag = drag_EAS_setpoint;
-					_adv_thr_calc_as = _EAS_setpoint;
+					_adv_thr_calc_as = EAS_sp_adj;
 				}
 			} else {
 				if (drag_EAS_setpoint < drag) {
 					drag = drag_EAS_setpoint;
-					_adv_thr_calc_as = _EAS_setpoint;
+					_adv_thr_calc_as = EAS_sp_adj;
 				}
 			}
 
