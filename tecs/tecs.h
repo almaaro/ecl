@@ -89,6 +89,9 @@ public:
 	float get_pitch_setpoint() { return _pitch_setpoint; }
 	float get_speed_weight() { return _pitch_speed_weight; }
 
+        float get_delta_v_trim_as_level() { return _delta_v_trim_as_level; }
+        float get_required_delta_v() { return _required_delta_v; }
+
 	void reset_state() { _states_initialized = false; }
 
 	enum ECL_TECS_MODE {
@@ -296,6 +299,7 @@ private:
 	float _adv_thr_calc_as{0.0};
 	float _airspeed_time_constant{0.0f};
 	float _EAS_setpoint_STE_rate_lim_calc_prev{0.0};
+	float _required_delta_v{0.0f};
 
 	/**
 	 * Update the airspeed internal state using a second order complementary filter
