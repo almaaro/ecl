@@ -616,13 +616,26 @@ void TECS::_update_STE_rate_lim(float throttle_cruise)
 
 			// Some more error checks
 			if (_thrust_coefficient > 0.001f && _delta_v_trim_as_max_climb > 0.1f){
+
+				float as_squared = _indicated_airspeed_min * _indicated_airspeed_min;
+				// required thrust to overcome air drag at level flight. Also de-normalizimg this from _auw.
+				float required_thrust = (_cd_i_specific / as_squared + _cd_o_specific * as_squared) * _auw;
+				// The calculated delta v to produce the required thrust at the current airspeed
+				_delta_v_min_as_level = sqrtf(max(0.001f, required_thrust / _thrust_coefficient + as_squared)) - _indicated_airspeed_min;
+
+				as_squared = _indicated_airspeed_max * _indicated_airspeed_max;
+				// required thrust to overcome air drag at level flight. Also de-normalizimg this from _auw.
+				required_thrust = (_cd_i_specific / as_squared + _cd_o_specific * as_squared) * _auw;
+				// The calculated delta v to produce the required thrust at the current airspeed
+				_delta_v_max_as_level = sqrtf(max(0.001f, required_thrust / _thrust_coefficient + as_squared)) - _indicated_airspeed_max;
+
+
 				_advanced_thr_calc_initialized = true;
 			} else {
 				goto throttle_calculation_default;
 			}
 
 		} else if (_EAS > 1.0f  && _EAS_setpoint > 1.0f) {
-
 			// _STE_rate_min equals to the sum of parasitic and induced drag power.
 			// Drag force = _Cd_i / _EAS /_EAS + _Cd_o_specific * _EAS *_EAS;
 			// Drag power = Drag force * _EAS
@@ -653,6 +666,7 @@ void TECS::_update_STE_rate_lim(float throttle_cruise)
 			_STE_rate_min = - (drag * _adv_thr_calc_as);
 
 			_STE_rate_max = ((_adv_thr_calc_as - _indicated_airspeed_trim) * _max_thrust_as_coefficient + _thrust_trim_as_max_climb) * _adv_thr_calc_as / _auw + _STE_rate_min;
+
 		} else {
 			goto throttle_calculation_default;
 		}
@@ -661,6 +675,8 @@ void TECS::_update_STE_rate_lim(float throttle_cruise)
 throttle_calculation_default:
 
 		_advanced_thr_calc_initialized = false;
+
+		_delta_v_trim_as_level = -1.0f;
 
 		_STE_rate_max = rate_max;
 		_STE_rate_min = rate_min;
