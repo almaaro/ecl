@@ -169,8 +169,8 @@ void TECS::_update_speed_setpoint()
 
 	// Calculate limits for the demanded rate of change of speed based on physical performance limits
 	// with a 50% margin to allow the total energy controller to correct for errors.
-	float velRateMax = _STE_rate_max / _tas_state;
-	float velRateMin = _STE_rate_min / _tas_state;
+	float velRateMax = 0.5f * _STE_rate_max / _tas_state;
+	float velRateMin = 0.5f * _STE_rate_min / _tas_state;
 
 	_TAS_setpoint_adj = constrain(_TAS_setpoint, _TAS_min, _TAS_max);
 
@@ -534,8 +534,13 @@ void TECS::_update_pitch_setpoint()
 	// energy should be allocated to speed (kinetic energy) and height (potential energy)
 	float SEB_setpoint = _SPE_setpoint * SPE_weighting - _SKE_setpoint * SKE_weighting;
 
+
+	// Because the airspeed is more critical for an airplane than the altitude, limit the _SPE_rate_setpoint
+	// so that the demanded rate in airspeed can be achieved.
+	float SPE_rate_setpoint_adj = constrain(_SPE_rate_setpoint, _STE_rate_min - _SKE_rate_setpoint, _STE_rate_max - _SKE_rate_setpoint);
+
 	// Calculate the specific energy balance rate demand
-	float SEB_rate_setpoint = _SPE_rate_setpoint * SPE_weighting - _SKE_rate_setpoint * SKE_weighting;
+	float SEB_rate_setpoint = SPE_rate_setpoint_adj * SPE_weighting - _SKE_rate_setpoint * SKE_weighting;
 
 	// Calculate the specific energy balance and balance rate error
 	_SEB_error = SEB_setpoint - (_SPE_estimate * SPE_weighting - _SKE_estimate * SKE_weighting);
