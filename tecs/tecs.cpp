@@ -296,20 +296,20 @@ void TECS::_update_throttle_setpoint(const float throttle_cruise, const matrix::
 		float throttle_predicted = 0.0f;
 
 		if (_advanced_thr_calc_initialized) {
-			const float as_squared = _adv_thr_calc_as * _adv_thr_calc_as;
+			const float as_squared = _EAS * _EAS;
 			/* Throttle calculations */
 
 			// This is (delta v at max throttle at  _adv_thr_calc_airspeed) / (v2 at max throttle at _indicated_airspeed_trim). Used to scale the required delta v for throttle.
 			// The adjusted delt v is calculated from thrust, which is assumed to have a linear relationship to airspeed.
 			const float max_delta_v_airspeed_coefficient = (sqrtf(as_squared + (_max_thrust_as_coefficient *
-											   (_adv_thr_calc_as - _indicated_airspeed_trim) + _thrust_trim_as_max_climb)
-									/ _thrust_coefficient) - _adv_thr_calc_as) / _delta_v_trim_as_max_climb;
+											   (_EAS - _indicated_airspeed_trim) + _thrust_trim_as_max_climb)
+									/ _thrust_coefficient) - _EAS) / _delta_v_trim_as_max_climb;
 
 			// required thrust to overcome air drag, climb rate and acceleration. Also de-normalizimg this from _auw.
-			const float required_thrust = (_cd_i_specific / as_squared + _cd_o_specific * as_squared + STE_rate_setpoint / _adv_thr_calc_as) * _auw;
+			const float required_thrust = (_cd_i_specific / as_squared + _cd_o_specific * as_squared + STE_rate_setpoint / _EAS) * _auw;
 
 			// The calculated delta v to produce the required thrust at the current airspeed
-			_required_delta_v = sqrtf(max(0.001f, required_thrust / _thrust_coefficient + as_squared)) - _adv_thr_calc_as;
+			_required_delta_v = sqrtf(max(0.001f, required_thrust / _thrust_coefficient + as_squared)) - _EAS;
 
 			// Adjusting the delta v to match the new maximum delta v at the current airspeed
 			const float delta_v_trim_as_level_adj = _delta_v_trim_as_level * max_delta_v_airspeed_coefficient;
@@ -636,37 +636,14 @@ void TECS::_update_STE_rate_lim(float throttle_cruise)
 				goto throttle_calculation_default;
 			}
 
-		} else if (_EAS > 1.0f  && _EAS_setpoint > 1.0f) {
+		} else if (_EAS > 1.0f) {
 			// _STE_rate_min equals to the sum of parasitic and induced drag power.
 			// Drag force = _Cd_i / _EAS /_EAS + _Cd_o_specific * _EAS *_EAS;
 			// Drag power = Drag force * _EAS
 
-			// Choose from _EAS and _EAS_setpoint the value to be used in the calculations that provides a grater safety margin:
-			// If the airspeed is greater than the setpoint, choose the one that will result in smaller total drag
-			// If the airsepeed is smaller than the setpoint, choose the one that will result in greater total drag.
-			float EAS_sp_adj = _airspeed_time_constant * _EAS_setpoint + (1.0f - _airspeed_time_constant) * _EAS_setpoint_STE_rate_lim_calc_prev;
-			_EAS_setpoint_STE_rate_lim_calc_prev = EAS_sp_adj;
-			float drag = _cd_i_specific / _EAS /_EAS + _cd_o_specific * _EAS * _EAS;
-			float drag_EAS_setpoint = _cd_i_specific / EAS_sp_adj /EAS_sp_adj + _cd_o_specific * EAS_sp_adj * EAS_sp_adj;
+			_STE_rate_min = - (_cd_i_specific / _EAS + _cd_o_specific * _EAS * _EAS * _EAS);
 
-			//default to _EAS
-			_adv_thr_calc_as = _EAS;
-
-			if (EAS_sp_adj > _EAS) {
-				if (drag_EAS_setpoint > drag) {
-					drag = drag_EAS_setpoint;
-					_adv_thr_calc_as = EAS_sp_adj;
-				}
-			} else {
-				if (drag_EAS_setpoint < drag) {
-					drag = drag_EAS_setpoint;
-					_adv_thr_calc_as = EAS_sp_adj;
-				}
-			}
-
-			_STE_rate_min = - (drag * _adv_thr_calc_as);
-
-			_STE_rate_max = ((_adv_thr_calc_as - _indicated_airspeed_trim) * _max_thrust_as_coefficient + _thrust_trim_as_max_climb) * _adv_thr_calc_as / _auw + _STE_rate_min;
+			_STE_rate_max = ((_EAS - _indicated_airspeed_trim) * _max_thrust_as_coefficient + _thrust_trim_as_max_climb) * _EAS / _auw + _STE_rate_min;
 
 		} else {
 			goto throttle_calculation_default;
