@@ -115,6 +115,7 @@ void TECS::_update_speed_states(float airspeed_setpoint, float indicated_airspee
 	_EAS_setpoint = airspeed_setpoint;
 	_TAS_setpoint  = _EAS_setpoint * EAS2TAS;
 	_TAS_max   = _indicated_airspeed_max * EAS2TAS;
+	_TAS_trim  = _indicated_airspeed_trim * EAS2TAS;
 	_TAS_min   = _indicated_airspeed_min * EAS2TAS;
 
 	// If airspeed measurements are not being used, fix the airspeed estimate to halfway between
@@ -583,8 +584,9 @@ void TECS::_update_STE_rate_lim(float throttle_cruise)
 			}
 
 			/* Airspeed-dependent drag coefficients */
-			// All of these calculations assume that the air density is constant. But if the density was taken into account,
-			// we would have to know how all the parameters depend on the air density.
+			// All of these calculations assume that the air density is constant (sea level 15C).
+			// This also assumes that in the conditions where the parameters such as CLIMB_MAX, SINK_MIN and ASPD_MAX were measured,
+			// EAS2TAS was 1 meaning that all _indicated_airspeed_[min|trim|max] were equal to their TAS values.
 
 			const float lift = _auw * CONSTANTS_ONE_G;
 

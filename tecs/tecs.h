@@ -232,6 +232,7 @@ private:
 	// speed demand calculations
 	float _EAS{0.0f};						///< equivalent airspeed (m/sec)
 	float _TAS_max{30.0f};						///< true airpeed demand upper limit (m/sec)
+	float _TAS_trim{10.0f};						///< true airpeed demand default value (m/sec)
 	float _TAS_min{3.0f};						///< true airpeed demand lower limit (m/sec)
 	float _TAS_setpoint{0.0f};					///< current airpeed demand (m/sec)
 	float _TAS_setpoint_last{0.0f};					///< previous true airpeed demand (m/sec)
