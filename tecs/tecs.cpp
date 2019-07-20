@@ -144,6 +144,9 @@ void TECS::_update_speed_states(float airspeed_setpoint, float indicated_airspee
 
 	}
 
+	// Get smoothed _EAS from smoothed _tas_state
+	_EAS = _tas_state / EAS2TAS;
+
 	// Update TAS state
 	_tas_rate_state = _tas_rate_state + tas_rate_state_input * dt;
 	float tas_state_input = _tas_rate_state + _speed_derivative + tas_error * _tas_estimate_freq * 1.4142f;
@@ -306,7 +309,7 @@ void TECS::_update_throttle_setpoint(const float throttle_cruise, const matrix::
 									/ _thrust_coefficient) - _EAS) / _delta_v_trim_as_max_climb;
 
 			// required thrust to overcome air drag, climb rate and acceleration. Also de-normalizimg this from _auw.
-			const float required_thrust = (_cd_i_specific / as_squared + _cd_o_specific * as_squared + STE_rate_setpoint / _EAS) * _auw;
+			const float required_thrust = (_cd_i_specific / as_squared + _cd_o_specific * as_squared + STE_rate_setpoint / _tas_state) * _auw;
 
 			// The calculated delta v to produce the required thrust at the current airspeed
 			_required_delta_v = sqrtf(max(0.001f, required_thrust / _thrust_coefficient + as_squared)) - _EAS;
@@ -532,7 +535,6 @@ void TECS::_initialize_states(float pitch, float throttle_cruise, float baro_alt
 		_underspeed_detected = false;
 		_uncommanded_descent_recovery = false;
 		_STE_rate_error = 0.0f;
-		_EAS_setpoint_STE_rate_lim_calc_prev = _indicated_airspeed_trim;
 
 		if (_dt > DT_MAX || _dt < DT_MIN) {
 			_dt = DT_DEFAULT;
@@ -581,6 +583,8 @@ void TECS::_update_STE_rate_lim(float throttle_cruise)
 			}
 
 			/* Airspeed-dependent drag coefficients */
+			// All of these calculations assume that the air density is constant. But if the density was taken into account,
+			// we would have to know how all the parameters depend on the air density.
 
 			const float lift = _auw * CONSTANTS_ONE_G;
 
@@ -639,11 +643,12 @@ void TECS::_update_STE_rate_lim(float throttle_cruise)
 		} else if (_EAS > 1.0f) {
 			// _STE_rate_min equals to the sum of parasitic and induced drag power.
 			// Drag force = _Cd_i / _EAS /_EAS + _Cd_o_specific * _EAS *_EAS;
-			// Drag power = Drag force * _EAS
+			// Drag power = Drag force * _tas_state
 
-			_STE_rate_min = - (_cd_i_specific / _EAS + _cd_o_specific * _EAS * _EAS * _EAS);
+			float EAS_sq = _EAS * _EAS;
+			_STE_rate_min = - (_cd_i_specific / EAS_sq + _cd_o_specific * EAS_sq) * _tas_state;
 
-			_STE_rate_max = ((_EAS - _indicated_airspeed_trim) * _max_thrust_as_coefficient + _thrust_trim_as_max_climb) * _EAS / _auw + _STE_rate_min;
+			_STE_rate_max = ((_EAS - _indicated_airspeed_trim) * _max_thrust_as_coefficient + _thrust_trim_as_max_climb) * _tas_state / _auw + _STE_rate_min;
 
 		} else {
 			goto throttle_calculation_default;
