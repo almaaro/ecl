@@ -443,8 +443,6 @@ void TECS::_update_pitch_setpoint()
 	// Calculate a specific energy correction that doesn't include the integrator contribution
 	float SEB_correction = _SEB_rate_error * _pitch_damping_gain + SEB_rate_setpoint;
 
-	SEB_correction = constrain(SEB_correction / climb_angle_to_SEB_rate, _pitch_setpoint_min, _pitch_setpoint_max) * climb_angle_to_SEB_rate;
-
 	// During climbout, bias the demanded pitch angle so that a zero speed error produces a pitch angle
 	// demand equal to the minimum pitch angle set by the mission plan. This prevents the integrator
 	// having to catch up before the nose can be raised to reduce excess speed during climbout.
