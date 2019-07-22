@@ -301,7 +301,6 @@ private:
 	float _delta_v_min_as_level{0.0f};
 	float _delta_v_trim_as_level{0.0f};
 	float _delta_v_max_as_level{0.0f};
-	float _airspeed_time_constant{0.0f};
 	float _required_delta_v{0.0f};
 
 	/**

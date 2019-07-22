@@ -180,9 +180,6 @@ void TECS::_update_speed_setpoint()
 	// and apply performance limits
 	_TAS_rate_setpoint = constrain((_TAS_setpoint_adj - _tas_state) * _speed_error_gain, velRateMin, velRateMax);
 
-	// Update the airspeed time constant
-	_airspeed_time_constant = constrain(_speed_error_gain * _dt, 0.0f, 1.0f);
-
 }
 
 void TECS::_update_height_setpoint(float desired, float state)
