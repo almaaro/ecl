@@ -286,7 +286,6 @@ private:
 	float _min_sink_rate_landing_flaps{1.0f};
 	float _STE_rate_flaps{0.0f};
 	float _STE_rate_demand_flaps{0.0f};			///< additional drag from flaps
-	float _flaps_STE_demand_as_ratio_prev{0.0f};
 
 	// pitch offsets
 	float _pitchsp_offset_rad{0.0f};
@@ -297,7 +296,6 @@ private:
 	float _wing_area{0.0f};
 	float _cl_cruise_trim_as{0.0f};
 	float _cl_coefficient{0.0f};
-	float _cl_prev{0.0};
 	bool _pitchsp_offset_initialized{false};
 
 
