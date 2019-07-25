@@ -146,6 +146,8 @@ public:
 	void set_cl_to_alpha_rad_slope(float slope) { _cl_to_alpha_rad_slope = slope; }
 	void set_wing_area(float a) { _wing_area = a; }
 
+	void set_pos_ctrl_hgt_rate(float use, float rate = 0.0f){ _use_position_control_hgt_rate = use; _position_control_hgt_rate = rate; }
+
 	// TECS status
 	uint64_t timestamp() { return _pitch_update_timestamp; }
 	ECL_TECS_MODE tecs_mode() { return _tecs_mode; }
@@ -255,6 +257,8 @@ private:
 	float _hgt_setpoint_adj{0.0f};					///< demanded height used by the control loops after all filtering has been applied (m)
 	float _hgt_setpoint_adj_prev{0.0f};				///< value of _hgt_setpoint_adj from previous frame (m)
 	float _hgt_rate_setpoint{0.0f};					///< demanded climb rate tracked by the TECS algorithm
+	float _position_control_hgt_rate{0.0};
+	bool _use_position_control_hgt_rate{false};
 
 	// vehicle physical limits
 	float _pitch_setpoint_unc{0.0f};				///< pitch demand before limiting (rad)

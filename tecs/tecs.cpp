@@ -219,6 +219,11 @@ void TECS::_update_height_setpoint(float desired, float state)
 			     (_hgt_setpoint_adj - _hgt_setpoint_adj_prev) / _dt;
 	_hgt_setpoint_adj_prev = _hgt_setpoint_adj;
 
+	// if externally demanded height rate (=flare)
+	if(_use_position_control_hgt_rate) {
+		_hgt_rate_setpoint = _position_control_hgt_rate;
+	}
+
 	// Limit the rate of change of height demand to respect vehicle performance limits
 	if (_hgt_rate_setpoint > _max_climb_rate) {
 		_hgt_rate_setpoint = _max_climb_rate;
