@@ -466,7 +466,8 @@ void TECS::_update_pitch_setpoint()
 
 	/* Calculate and add the pitch offsets */
 
-	float cl = _cl_coefficient / max(1.0f, _EAS * _EAS);
+	// never calculate the offset for airspeeds lower than the minimum. This will avoid increasing the AOA in stalls.
+	float cl = _cl_coefficient / max(_indicated_airspeed_min, _EAS * _EAS);
 
 	//Then calculate the needed pitch. Take the flap setting into account.
 	float offset = (1.0f - _landing_flaps_applied) * _pitchsp_offset_rad + _landing_flaps_applied * _pitchsp_offset_landing_flaps_rad;
