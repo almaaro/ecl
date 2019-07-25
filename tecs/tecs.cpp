@@ -287,7 +287,14 @@ void TECS::_update_throttle_setpoint(const float throttle_cruise, const matrix::
 		// The additional normal load factor is given by (1/cos(bank angle) - 1)
 		float cosPhi = sqrtf((rotMat(0, 1) * rotMat(0, 1)) + (rotMat(1, 1) * rotMat(1, 1)));
 		STE_rate_setpoint = STE_rate_setpoint + _load_factor_correction * (1.0f / constrain(cosPhi, 0.1f, 1.0f) - 1.0f);
-		STE_rate_setpoint = constrain(STE_rate_setpoint, _STE_rate_min, _STE_rate_max);
+
+		// The STE rate setpoint must now be constrained so that we will never end up in a situation where
+		// the total energy is OK, but the airspeed is dangerously low because we have too much potential energy.
+		// This is prevented by first bleeding off any excess potential energy into kinetic energy and then reducing the excess
+		// airspeed. However, if the pitch is controlling also the airspeed, the risk of this underspeeding is reduced.
+		float STE_rate_min_adj = (0.5f * _pitch_speed_weight) * _STE_rate_min + (1.0f - 0.5f * _pitch_speed_weight) * _SKE_rate_setpoint;
+
+		STE_rate_setpoint = constrain(STE_rate_setpoint, STE_rate_min_adj, _STE_rate_max);
 
 		// Calculate a predicted throttle from the demanded rate of change of energy, using the cruise throttle
 		// as the starting point. Assume:
