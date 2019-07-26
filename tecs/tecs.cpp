@@ -272,87 +272,82 @@ void TECS::_update_throttle_setpoint(const float throttle_cruise, const matrix::
 	_STE_rate_error = 0.2f * (STE_rate_setpoint - _SPE_rate - _SKE_rate) + 0.8f * _STE_rate_error;
 
 	// Calculate the throttle demand
-	if (false ){//_underspeed_detected) {
 
-		// always use max throttle to recover from an underspeed condition
-		_throttle_setpoint = _throttle_setpoint_max;
+	// Adjust the demanded total energy rate to compensate for induced drag rise in turns.
+	// Assume induced drag scales linearly with normal load factor.
+	// The additional normal load factor is given by (1/cos(bank angle) - 1)
+	float cosPhi = sqrtf((rotMat(0, 1) * rotMat(0, 1)) + (rotMat(1, 1) * rotMat(1, 1)));
+	STE_rate_setpoint = STE_rate_setpoint + _load_factor_correction * (1.0f / constrain(cosPhi, 0.1f, 1.0f) - 1.0f);
+
+	// Calculate a predicted throttle from the demanded rate of change of energy, using the cruise throttle
+	// as the starting point. Assume:
+	// Specific total energy rate = _STE_rate_max is achieved when throttle is set to _throttle_setpoint_max
+	// Specific total energy rate = 0 at cruise throttle
+	// Specific total energy rate = _STE_rate_min is achieved when throttle is set to _throttle_setpoint_min
+	float throttle_predicted = 0.0f;
+
+	if (STE_rate_setpoint >= 0) {
+		// throttle is between cruise and maximum
+		throttle_predicted = throttle_cruise + STE_rate_setpoint / _STE_rate_max * (_throttle_setpoint_max - throttle_cruise);
 
 	} else {
-		// Adjust the demanded total energy rate to compensate for induced drag rise in turns.
-		// Assume induced drag scales linearly with normal load factor.
-		// The additional normal load factor is given by (1/cos(bank angle) - 1)
-		float cosPhi = sqrtf((rotMat(0, 1) * rotMat(0, 1)) + (rotMat(1, 1) * rotMat(1, 1)));
-		STE_rate_setpoint = STE_rate_setpoint + _load_factor_correction * (1.0f / constrain(cosPhi, 0.1f, 1.0f) - 1.0f);
+		// throttle is between cruise and minimum
+		throttle_predicted = throttle_cruise + STE_rate_setpoint / _STE_rate_min * (_throttle_setpoint_min - throttle_cruise);
 
-		// Calculate a predicted throttle from the demanded rate of change of energy, using the cruise throttle
-		// as the starting point. Assume:
-		// Specific total energy rate = _STE_rate_max is achieved when throttle is set to _throttle_setpoint_max
-		// Specific total energy rate = 0 at cruise throttle
-		// Specific total energy rate = _STE_rate_min is achieved when throttle is set to _throttle_setpoint_min
-		float throttle_predicted = 0.0f;
-
-		if (STE_rate_setpoint >= 0) {
-			// throttle is between cruise and maximum
-			throttle_predicted = throttle_cruise + STE_rate_setpoint / _STE_rate_max * (_throttle_setpoint_max - throttle_cruise);
-
-		} else {
-			// throttle is between cruise and minimum
-			throttle_predicted = throttle_cruise + STE_rate_setpoint / _STE_rate_min * (_throttle_setpoint_min - throttle_cruise);
-
-		}
-
-		// Calculate gain scaler from specific energy error to throttle
-		float STE_to_throttle = 1.0f / (_throttle_time_constant * (_STE_rate_max - _STE_rate_min));
-
-		// Add proportional and derivative control feedback to the predicted throttle and constrain to throttle limits
-		_throttle_setpoint = (_STE_error + _STE_rate_error * _throttle_damping_gain) * STE_to_throttle + throttle_predicted;
-		_throttle_setpoint = constrain(_throttle_setpoint, _throttle_setpoint_min, _throttle_setpoint_max);
-
-		// Rate limit the throttle demand
-		if (fabsf(_throttle_slewrate) > 0.01f) {
-			float throttle_increment_limit = _dt * (_throttle_setpoint_max - _throttle_setpoint_min) * _throttle_slewrate;
-			_throttle_setpoint = constrain(_throttle_setpoint, _last_throttle_setpoint - throttle_increment_limit,
-						       _last_throttle_setpoint + throttle_increment_limit);
-		}
-
-		_last_throttle_setpoint = _throttle_setpoint;
-
-		if (_integrator_gain > 0.0f) {
-			// Calculate throttle integrator state upper and lower limits with allowance for
-			// 10% throttle saturation to accommodate noise on the demand.
-			float integ_state_max = _throttle_setpoint_max - _throttle_setpoint + 0.1f;
-			float integ_state_min = _throttle_setpoint_min - _throttle_setpoint - 0.1f;
-
-			// Calculate a throttle demand from the integrated total energy error
-			// This will be added to the total throttle demand to compensate for steady state errors
-			_throttle_integ_state = _throttle_integ_state + (_STE_error * _integrator_gain) * _dt * STE_to_throttle;
-
-			if (_climbout_mode_active) {
-				// During climbout, set the integrator to maximum throttle to prevent transient throttle drop
-				// at end of climbout when we transition to closed loop throttle control
-				_throttle_integ_state = integ_state_max;
-
-			} else {
-				// Respect integrator limits during closed loop operation.
-				_throttle_integ_state = constrain(_throttle_integ_state, integ_state_min, integ_state_max);
-			}
-
-		} else {
-			_throttle_integ_state = 0.0f;
-		}
-
-		if (airspeed_sensor_enabled()) {
-			// Add the integrator feedback during closed loop operation with an airspeed sensor
-			_throttle_setpoint = _throttle_setpoint + _throttle_integ_state;
-
-		} else {
-			// when flying without an airspeed sensor, use the predicted throttle only
-			_throttle_setpoint = throttle_predicted;
-
-		}
-
-		_throttle_setpoint = constrain(_throttle_setpoint, _throttle_setpoint_min, _throttle_setpoint_max);
 	}
+
+	// Calculate gain scaler from specific energy error to throttle
+	float STE_to_throttle = 1.0f / (_throttle_time_constant * (_STE_rate_max - _STE_rate_min));
+
+	// Add proportional and derivative control feedback to the predicted throttle and constrain to throttle limits
+	_throttle_setpoint = (_STE_error + _STE_rate_error * _throttle_damping_gain) * STE_to_throttle + throttle_predicted;
+	_throttle_setpoint = constrain(_throttle_setpoint, _throttle_setpoint_min, _throttle_setpoint_max);
+
+	// Rate limit the throttle demand
+	if (fabsf(_throttle_slewrate) > 0.01f) {
+		float throttle_increment_limit = _dt * (_throttle_setpoint_max - _throttle_setpoint_min) * _throttle_slewrate;
+		_throttle_setpoint = constrain(_throttle_setpoint, _last_throttle_setpoint - throttle_increment_limit,
+						   _last_throttle_setpoint + throttle_increment_limit);
+	}
+
+	_last_throttle_setpoint = _throttle_setpoint;
+
+	if (_integrator_gain > 0.0f) {
+		// Calculate throttle integrator state upper and lower limits with allowance for
+		// 10% throttle saturation to accommodate noise on the demand.
+		float integ_state_max = _throttle_setpoint_max - _throttle_setpoint + 0.1f;
+		float integ_state_min = _throttle_setpoint_min - _throttle_setpoint - 0.1f;
+
+		// Calculate a throttle demand from the integrated total energy error
+		// This will be added to the total throttle demand to compensate for steady state errors
+		_throttle_integ_state = _throttle_integ_state + (_STE_error * _integrator_gain) * _dt * STE_to_throttle;
+
+		if (_climbout_mode_active) {
+			// During climbout, set the integrator to maximum throttle to prevent transient throttle drop
+			// at end of climbout when we transition to closed loop throttle control
+			_throttle_integ_state = integ_state_max;
+
+		} else {
+			// Respect integrator limits during closed loop operation.
+			_throttle_integ_state = constrain(_throttle_integ_state, integ_state_min, integ_state_max);
+		}
+
+	} else {
+		_throttle_integ_state = 0.0f;
+	}
+
+	if (airspeed_sensor_enabled()) {
+		// Add the integrator feedback during closed loop operation with an airspeed sensor
+		_throttle_setpoint = _throttle_setpoint + _throttle_integ_state;
+
+	} else {
+		// when flying without an airspeed sensor, use the predicted throttle only
+		_throttle_setpoint = throttle_predicted;
+
+	}
+
+	_throttle_setpoint = constrain(_throttle_setpoint, _throttle_setpoint_min, _throttle_setpoint_max);
+
 }
 
 void TECS::_detect_uncommanded_descent()
