@@ -169,10 +169,9 @@ void TECS::_update_speed_setpoint()
 
 	_TAS_setpoint = constrain(_TAS_setpoint, _TAS_min, _TAS_max);
 
-	// Calculate limits for the demanded rate of change of speed based on physical performance limits
-	// with a 50% margin to allow the total energy controller to correct for errors.
-	float velRateMax = 0.5f * _STE_rate_max / _tas_state;
-	float velRateMin = 0.5f * _STE_rate_min / _tas_state;
+	// Calculate limits for the demanded rate of change of speed based on physical performance limits.
+	float velRateMax = _STE_rate_max / _tas_state;
+	float velRateMin =  _STE_rate_min / _tas_state;
 
 	_TAS_setpoint_adj = constrain(_TAS_setpoint, _TAS_min, _TAS_max);
 
@@ -293,6 +292,10 @@ void TECS::_update_throttle_setpoint(const float throttle_cruise, const matrix::
 		// This is prevented by first bleeding off any excess potential energy into kinetic energy and then reducing the excess
 		// airspeed. However, if the pitch is controlling also the airspeed, the risk of this underspeeding is reduced.
 		float STE_rate_min_adj = (0.5f * _pitch_speed_weight) * _STE_rate_min + (1.0f - 0.5f * _pitch_speed_weight) * _SKE_rate_setpoint;
+
+		//Also adjust the safety margin to the current airspeed. Full effect at min airspeed, no effect at 10% above min airspeed.
+		float scaler = constrain((_tas_state - _indicated_airspeed_min) / (0.1f * _indicated_airspeed_min), 0.0f, 1.0f);
+		STE_rate_min_adj = (1.0f - scaler) * STE_rate_min_adj + scaler * _STE_rate_min;
 
 		STE_rate_setpoint = constrain(STE_rate_setpoint, STE_rate_min_adj, _STE_rate_max);
 
