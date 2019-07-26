@@ -293,8 +293,8 @@ void TECS::_update_throttle_setpoint(const float throttle_cruise, const matrix::
 		// airspeed. However, if the pitch is controlling also the airspeed, the risk of this underspeeding is reduced.
 		float STE_rate_min_adj = (0.5f * _pitch_speed_weight) * _STE_rate_min + (1.0f - 0.5f * _pitch_speed_weight) * _SKE_rate_setpoint;
 
-		//Also adjust the safety margin to the current airspeed. Full effect at min airspeed, no effect at 10% above min airspeed.
-		float scaler = constrain((_tas_state - _indicated_airspeed_min) / (0.1f * _indicated_airspeed_min), 0.0f, 1.0f);
+		//Also adjust the safety margin to the current airspeed. Full effect at min airspeed, no effect at trim airspeed.
+		float scaler = constrain((_tas_state - _indicated_airspeed_min) / (max(0.1f, _indicated_airspeed_trim - _indicated_airspeed_min)), 0.0f, 1.0f);
 		STE_rate_min_adj = (1.0f - scaler) * STE_rate_min_adj + scaler * _STE_rate_min;
 
 		STE_rate_setpoint = constrain(STE_rate_setpoint, STE_rate_min_adj, _STE_rate_max);
