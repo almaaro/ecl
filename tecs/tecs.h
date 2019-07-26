@@ -146,7 +146,7 @@ public:
 	void set_cl_to_alpha_rad_slope(float slope) { _cl_to_alpha_rad_slope = slope; }
 	void set_wing_area(float a) { _wing_area = a; }
 
-	void set_pos_ctrl_hgt_rate(float use, float rate = 0.0f){ _use_position_control_hgt_rate = use; _position_control_hgt_rate = rate; }
+	void set_pos_ctrl_hgt_rate(bool use, float rate = 0.0f){ _use_position_control_hgt_rate = use; _position_control_hgt_rate = rate; }
 
 	// TECS status
 	uint64_t timestamp() { return _pitch_update_timestamp; }
