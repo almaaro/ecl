@@ -406,7 +406,7 @@ void TECS::_update_pitch_setpoint()
 
 	// Because the airspeed is more critical for an airplane than the altitude, limit the _SPE_rate_setpoint
 	// so that the demanded rate in airspeed can be achieved.
-	float SPE_rate_setpoint_adj = constrain(_SPE_rate_setpoint, _STE_rate_min - _SKE_rate_setpoint, _STE_rate_max - _SKE_rate_setpoint);
+	float SPE_rate_setpoint_adj = min(_SPE_rate_setpoint, _STE_rate_max - _SKE_rate_setpoint);
 
 	// Calculate the specific energy balance rate demand
 	float SEB_rate_setpoint = SPE_rate_setpoint_adj * SPE_weighting - _SKE_rate_setpoint * SKE_weighting;
