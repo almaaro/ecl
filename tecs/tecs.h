@@ -89,9 +89,9 @@ public:
 	float get_pitch_setpoint() { return _pitch_setpoint; }
 	float get_speed_weight() { return _pitch_speed_weight; }
 
-	float get_as_elev_min_as_level() { return _as_elev_min_as_level; }
-	float get_as_elev_trim_as_level() { return _delta_v_trim_as_level; }
-	float get_as_elev_max_as_level() { return _as_elev_max_as_level_sq; }
+	float get_as_elev_min_as_level_sq() { return _as_elev_min_as_level_sq; }
+	float get_as_elev_trim_as_level_sq() { return _as_elev_trim_as_level_sq; }
+	float get_as_elev_max_as_level_sq() { return _as_elev_max_as_level_sq; }
 	float get_required_as_elev() { return _required_as_elev; }
 
 	void reset_state() { _states_initialized = false; }
