@@ -169,9 +169,10 @@ void TECS::_update_speed_setpoint()
 
 	_TAS_setpoint = constrain(_TAS_setpoint, _TAS_min, _TAS_max);
 
-	// Calculate limits for the demanded rate of change of speed based on physical performance limits.
-	float velRateMax = _STE_rate_max / _tas_state;
-	float velRateMin =  _STE_rate_min / _tas_state;
+	// Calculate limits for the demanded rate of change of speed based on physical performance limits
+	// with a 50% margin to allow the total energy controller to correct for errors.
+	float velRateMax = 0.5f * _STE_rate_max / _tas_state;
+	float velRateMin = 0.5f * _STE_rate_min / _tas_state;
 
 	_TAS_setpoint_adj = constrain(_TAS_setpoint, _TAS_min, _TAS_max);
 
