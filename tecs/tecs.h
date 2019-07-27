@@ -89,10 +89,10 @@ public:
 	float get_pitch_setpoint() { return _pitch_setpoint; }
 	float get_speed_weight() { return _pitch_speed_weight; }
 
-	float get_delta_v_min_as_level() { return _delta_v_min_as_level; }
-	float get_delta_v_trim_as_level() { return _delta_v_trim_as_level; }
-	float get_delta_v_max_as_level() { return _delta_v_max_as_level; }
-	float get_required_delta_v() { return _required_delta_v; }
+	float get_as_elev_min_as_level() { return _as_elev_min_as_level; }
+	float get_as_elev_trim_as_level() { return _delta_v_trim_as_level; }
+	float get_as_elev_max_as_level() { return _as_elev_max_as_level_sq; }
+	float get_required_as_elev() { return _required_as_elev; }
 
 	void reset_state() { _states_initialized = false; }
 
@@ -137,6 +137,7 @@ public:
 	void set_auw(float auw) { _auw = auw; }
 	void set_propeller_diameter(float diameter) {_propeller_diameter = diameter; }
 	void set_use_advanced_thr_calculation(bool value) {_use_advanced_thr_calculation = value; }
+	void set_motor_airstream_at_elevator_scaler(float scaler) {_motor_airstream_at_elevator_scaler = scaler; }
 
 	// TECS status
 	uint64_t timestamp() { return _pitch_update_timestamp; }
@@ -298,10 +299,13 @@ private:
 	float _max_thrust_as_coefficient{1.0f};
 	float _thrust_coefficient{0.0f};
 	float _delta_v_trim_as_max_climb{0.0f};
-	float _delta_v_min_as_level{0.0f};
+	float _as_elev_min_as_level_sq{0.0f};
 	float _delta_v_trim_as_level{0.0f};
-	float _delta_v_max_as_level{0.0f};
+	float _as_elev_trim_as_level_sq{0.0f};
+	float _as_elev_max_as_level_sq{0.0f};
+	float _required_as_elev{0.0f};
 	float _required_delta_v{0.0f};
+	float _motor_airstream_at_elevator_scaler{0.0f};
 
 	/**
 	 * Update the airspeed internal state using a second order complementary filter
