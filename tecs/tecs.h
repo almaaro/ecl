@@ -89,9 +89,7 @@ public:
 	float get_pitch_setpoint() { return _pitch_setpoint; }
 	float get_speed_weight() { return _pitch_speed_weight; }
 
-	float get_as_elev_min_as_level_sq() { return _as_elev_min_as_level_sq; }
 	float get_as_elev_trim_as_level_sq() { return _as_elev_trim_as_level_sq; }
-	float get_as_elev_max_as_level_sq() { return _as_elev_max_as_level_sq; }
 	float get_required_as_elev() { return _required_as_elev; }
 
 	void reset_state() { _states_initialized = false; }
@@ -299,10 +297,8 @@ private:
 	float _max_thrust_as_coefficient{1.0f};
 	float _thrust_coefficient{0.0f};
 	float _delta_v_trim_as_max_climb{0.0f};
-	float _as_elev_min_as_level_sq{0.0f};
 	float _delta_v_trim_as_level{0.0f};
 	float _as_elev_trim_as_level_sq{0.0f};
-	float _as_elev_max_as_level_sq{0.0f};
 	float _required_as_elev{0.0f};
 	float _required_delta_v{0.0f};
 	float _motor_airstream_at_elevator_scaler{0.0f};

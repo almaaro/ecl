@@ -633,24 +633,6 @@ void TECS::_update_STE_rate_lim(float throttle_cruise)
 			// Some more error checks
 			if (_thrust_coefficient > 0.001f && _delta_v_trim_as_max_climb > 0.1f){
 
-				float as_squared = _indicated_airspeed_min * _indicated_airspeed_min;
-				// required thrust to overcome air drag at level flight. Also de-normalizimg this from _auw.
-				float required_thrust = (_cd_i_specific / as_squared + _cd_o_specific * as_squared) * _auw;
-				// The calculated delta v to produce the required thrust at the current airspeed
-				_as_elev_min_as_level_sq = sqrtf(max(0.001f, required_thrust / _thrust_coefficient + as_squared)) - _indicated_airspeed_min;
-				//convert this to the square of airspeed at elevator
-				_as_elev_min_as_level_sq = _as_elev_min_as_level_sq * _motor_airstream_at_elevator_scaler + _indicated_airspeed_min;
-				_as_elev_min_as_level_sq = _as_elev_min_as_level_sq * _as_elev_min_as_level_sq;
-
-				as_squared = _indicated_airspeed_max * _indicated_airspeed_max;
-				// required thrust to overcome air drag at level flight. Also de-normalizimg this from _auw.
-				required_thrust = (_cd_i_specific / as_squared + _cd_o_specific * as_squared) * _auw;
-				// The calculated delta v to produce the required thrust at the current airspeed
-				_as_elev_max_as_level_sq = sqrtf(max(0.001f, required_thrust / _thrust_coefficient + as_squared)) - _indicated_airspeed_max;
-				//convert this to the square of the airspeed at elevator
-				_as_elev_max_as_level_sq = _as_elev_max_as_level_sq * _motor_airstream_at_elevator_scaler + _indicated_airspeed_max;
-				_as_elev_max_as_level_sq = _as_elev_max_as_level_sq * _as_elev_max_as_level_sq;
-
 				_as_elev_trim_as_level_sq = _delta_v_trim_as_level * _motor_airstream_at_elevator_scaler + _indicated_airspeed_trim;
 				_as_elev_trim_as_level_sq = _as_elev_trim_as_level_sq * _as_elev_trim_as_level_sq;
 
