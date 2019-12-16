@@ -636,6 +636,10 @@ void TECS::_update_STE_rate_lim(float throttle_cruise)
 				_as_elev_trim_as_level_sq = _delta_v_trim_as_level * _motor_airstream_at_elevator_scaler + _indicated_airspeed_trim;
 				_as_elev_trim_as_level_sq = _as_elev_trim_as_level_sq * _as_elev_trim_as_level_sq;
 
+				_as_elev_max_as_level_sq = (sqrtf(thrust_max_as_level / _thrust_coefficient + _indicated_airspeed_max * _indicated_airspeed_max)
+											- _indicated_airspeed_max) * _motor_airstream_at_elevator_scaler + _indicated_airspeed_max;
+				_as_elev_max_as_level_sq = _as_elev_max_as_level_sq * _as_elev_max_as_level_sq;
+
 				_advanced_thr_calc_initialized = true;
 			} else {
 				goto throttle_calculation_default;
