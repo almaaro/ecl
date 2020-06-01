@@ -354,6 +354,6 @@ private:
 	/**
 	 * Calculate specific total energy rate limits
 	 */
-	void _update_STE_rate_lim(float throttle_cruise);
+        void _update_STE_rate_lim(float throttle_cruise, const matrix::Dcmf &rotMat);
 
 };

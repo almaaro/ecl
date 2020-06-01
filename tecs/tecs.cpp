@@ -282,13 +282,7 @@ void TECS::_update_throttle_setpoint(const float throttle_cruise, const matrix::
 		_throttle_setpoint = 1.0f;
 
 	} else {
-		// Adjust the demanded total energy rate to compensate for induced drag rise in turns.
-		// Assume induced drag scales linearly with normal load factor.
-		// The additional normal load factor is given by (1/cos(bank angle) - 1)
-		float cosPhi = sqrtf((rotMat(0, 1) * rotMat(0, 1)) + (rotMat(1, 1) * rotMat(1, 1)));
-		STE_rate_setpoint = STE_rate_setpoint + _load_factor_correction * (1.0f / constrain(cosPhi, 0.1f, 1.0f) - 1.0f);
-
-		// The STE rate setpoint must now be constrained so that we will never end up in a situation where
+                // The STE rate setpoint must now be constrained so that we will never end up in a situation where
 		// the total energy is OK, but the airspeed is dangerously low because we have too much potential energy.
 		// This is prevented by first bleeding off any excess potential energy into kinetic energy and then reducing the excess
 		// airspeed. However, if the pitch is controlling also the airspeed, the risk of this underspeeding is reduced.
@@ -337,6 +331,12 @@ void TECS::_update_throttle_setpoint(const float throttle_cruise, const matrix::
 			}
 		}
 		else{
+                        // Adjust the demanded total energy rate to compensate for induced drag rise in turns.
+                        // Assume induced drag scales linearly with normal load factor.
+                        // The additional normal load factor is given by (1/cos(bank angle) - 1)
+                        float cosPhi = sqrtf((rotMat(0, 1) * rotMat(0, 1)) + (rotMat(1, 1) * rotMat(1, 1)));
+                        STE_rate_setpoint = STE_rate_setpoint + _load_factor_correction * (1.0f / constrain(cosPhi, 0.1f, 1.0f) - 1.0f);
+
 			if (STE_rate_setpoint >= 0) {
 				// throttle is between cruise and maximum
 				throttle_predicted = throttle_cruise + STE_rate_setpoint / _STE_rate_max * (_throttle_setpoint_max - throttle_cruise);
@@ -345,7 +345,7 @@ void TECS::_update_throttle_setpoint(const float throttle_cruise, const matrix::
 				// throttle is between cruise and minimum
 				throttle_predicted = throttle_cruise + STE_rate_setpoint / _STE_rate_min * (_throttle_setpoint_min - throttle_cruise);
 
-			}
+			}    
 		}
 
 		// Calculate gain scaler from specific energy error to throttle
@@ -575,7 +575,7 @@ void TECS::_initialize_states(float pitch, float throttle_cruise, float baro_alt
 	_states_initialized = true;
 }
 
-void TECS::_update_STE_rate_lim(float throttle_cruise)
+void TECS::_update_STE_rate_lim(float throttle_cruise, const matrix::Dcmf &rotMat)
 {
 	// Calculate the specific total energy upper rate limits from the max throttle climb rate
 	const float rate_max = _max_climb_rate * CONSTANTS_ONE_G;
@@ -597,7 +597,9 @@ void TECS::_update_STE_rate_lim(float throttle_cruise)
 			// This also assumes that in the conditions where the parameters such as CLIMB_MAX, SINK_MIN and ASPD_MAX were measured,
 			// EAS2TAS was 1 meaning that all _indicated_airspeed_[min|trim|max] were equal to their TAS values.
 
-			const float lift = _auw * CONSTANTS_ONE_G;
+                        // The additional normal load factor is given by (1/cos(bank angle) - 1)
+                        float cosPhi = sqrtf((rotMat(0, 1) * rotMat(0, 1)) + (rotMat(1, 1) * rotMat(1, 1)));
+                        const float lift = _auw * CONSTANTS_ONE_G * (1.0f / constrain(cosPhi, 0.1f, 1.0f) - 1.0f);
 
 			// _Cd_i_specific: Vehicle specific induced drag coefficient, which equals to 1/2*S*rho*Cd_i
 			// Cd_i_specific = ... assuming planar wing. Efficiency factor of 0.85 for a starting point (should possibly be a parameter).
@@ -698,7 +700,7 @@ void TECS::update_pitch_throttle(const matrix::Dcmf &rotMat, float pitch, float 
 	_update_speed_states(EAS_setpoint, indicated_airspeed, eas_to_tas);
 
 	// Calculate rate limits for specific total energy
-	_update_STE_rate_lim(throttle_cruise);
+        _update_STE_rate_lim(throttle_cruise, rotMat);
 
 	// Detect an underspeed condition
 	_detect_underspeed();
