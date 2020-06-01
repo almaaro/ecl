@@ -527,6 +527,7 @@ void TECS::_update_throttle_setpoint(const float throttle_cruise, const matrix::
 			_throttle_integ_state = constrain(_throttle_integ_state, integ_state_min, integ_state_max);
 		}
 
+<<<<<<< HEAD
 	} else {
 		_throttle_integ_state = 0.0f;
 	}
@@ -545,6 +546,9 @@ void TECS::_update_throttle_setpoint(const float throttle_cruise, const matrix::
 		_throttle_setpoint = constrain(_throttle_setpoint, _throttle_setpoint_min, _throttle_setpoint_max);
 =======
 >>>>>>> formatting
+=======
+		_last_throttle_setpoint = _throttle_setpoint;
+>>>>>>> merge
 	}
 
 	_throttle_setpoint = constrain(_throttle_setpoint, _throttle_setpoint_min, _throttle_setpoint_max);
