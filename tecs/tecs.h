@@ -133,6 +133,7 @@ public:
 
 	void set_roll_throttle_compensation(float compensation) { _load_factor_correction = compensation; }
 
+<<<<<<< HEAD
 	void set_wingspan(float wingspan) { _wingspan = wingspan; }
 	void set_auw(float auw) { _auw = auw; }
 	void set_propeller_diameter(float diameter) {_propeller_diameter = diameter; }
@@ -141,9 +142,13 @@ public:
 
 	void set_flaps_applied(float flaps) { _flaps_applied = flaps; }
 	void set_min_sink_rate_flaps(float rate) { _min_sink_rate_flaps = rate; }
+=======
+        void set_flaps_applied(float flaps) { _flaps_applied = flaps; }
+        void set_min_sink_rate_flaps(float rate) { _min_sink_rate_flaps = rate; }
+>>>>>>> refractoring
 
 	void set_pitchsp_offset_rad(float offset) { _pitchsp_offset_rad = offset; }
-	void set_pitchsp_offset_landing_flaps_rad(float offset) { _pitchsp_offset_landing_flaps_rad = offset; }
+        void set_pitchsp_offset_flaps_rad(float offset) { _pitchsp_offset_flaps_rad = offset; }
 	void set_cl_to_alpha_rad_slope(float slope) { _cl_to_alpha_rad_slope = slope; }
 	void set_wing_area(float a) { _wing_area = a; }
 
@@ -334,17 +339,17 @@ private:
 	float _motor_airstream_at_elevator_scaler{0.0f};
 
 	// flaps
-	float _landing_flaps_applied{0.0f};
-	float _min_sink_rate_landing_flaps{1.0f};
+        float _flaps_applied{0.0f};
+        float _min_sink_rate_flaps{1.0f};
 	float _STE_rate_flaps{0.0f};
 	float _STE_rate_demand_flaps{0.0f};			///< additional drag from flaps
 
 	// pitch offsets
 	float _pitchsp_offset_rad{0.0f};
-	float _pitchsp_offset_landing_flaps_rad{0.0f};
+        float _pitchsp_offset_flaps_rad{0.0f};
 	float _cl_to_alpha_rad_slope{0.0f};
 	float _cl_offset_clean_cruise_trim_as{0.0f};
-	float _cl_offset_landing_flaps_cruise_trim_as{0.0f};
+        float _cl_offset_flaps_cruise_trim_as{0.0f};
 	float _wing_area{0.0f};
 	float _cl_cruise_trim_as{0.0f};
 	float _cl_coefficient{0.0f};

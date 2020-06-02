@@ -270,7 +270,7 @@ void TECS::_update_throttle_setpoint(const float throttle_cruise, const matrix::
 <<<<<<< HEAD
 	// The flaps only increase the parasitic drag (which is ~V^2) because the lift remains constant.
 	float as_ratio = _EAS / _indicated_airspeed_trim;
-	_STE_rate_demand_flaps = _landing_flaps_applied * _STE_rate_flaps * as_ratio * as_ratio;
+        _STE_rate_demand_flaps = _flaps_applied * _STE_rate_flaps * as_ratio * as_ratio;
 
 	// Calculate demanded rate of change of total energy, respecting vehicle limits
 	float STE_rate_setpoint = constrain((_SPE_rate_setpoint + _SKE_rate_setpoint + _STE_rate_demand_flaps), _STE_rate_min, _STE_rate_max);
@@ -685,7 +685,7 @@ void TECS::_update_pitch_setpoint()
 	float cl = _cl_coefficient / (EAS_adj * EAS_adj);
 
 	//Then calculate the needed pitch. Take the flap setting into account.
-	float offset = (1.0f - _landing_flaps_applied) * _pitchsp_offset_rad + _landing_flaps_applied * _pitchsp_offset_landing_flaps_rad;
+        float offset = (1.0f - _flaps_applied) * _pitchsp_offset_rad + _flaps_applied * _pitchsp_offset_flaps_rad;
 	float psp_offset_adj = offset + _cl_to_alpha_rad_slope * (cl - _cl_cruise_trim_as);
 
 	_pitch_setpoint_unc += psp_offset_adj;
@@ -863,7 +863,7 @@ throttle_calculation_default:
 		_STE_rate_min = rate_min;
 	}
 
-	_STE_rate_flaps = (_min_sink_rate_landing_flaps - _min_sink_rate) * CONSTANTS_ONE_G;
+        _STE_rate_flaps = (_min_sink_rate_flaps - _min_sink_rate) * CONSTANTS_ONE_G;
 }
 
 void TECS::update_pitch_throttle(const matrix::Dcmf &rotMat, float pitch, float baro_altitude, float hgt_setpoint,
@@ -960,7 +960,7 @@ void TECS::_initialize_pitchsp_offset() {
 		_cl_offset_clean_cruise_trim_as = _cl_cruise_trim_as - _pitchsp_offset_rad / _cl_to_alpha_rad_slope;
 
 		//Setting the flaps should ideally only change the offset, not the slope angle.
-		_cl_offset_landing_flaps_cruise_trim_as = _cl_cruise_trim_as - _pitchsp_offset_landing_flaps_rad / _cl_to_alpha_rad_slope;
+                _cl_offset_flaps_cruise_trim_as = _cl_cruise_trim_as - _pitchsp_offset_flaps_rad / _cl_to_alpha_rad_slope;
 
 		//the required cl for any airspeed can be calculated by dividing _cl_coefficient by airspeed squared.
 		_cl_coefficient = _cl_cruise_trim_as * _indicated_airspeed_trim * _indicated_airspeed_trim;
