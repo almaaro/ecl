@@ -134,6 +134,7 @@ public:
 	void set_roll_throttle_compensation(float compensation) { _load_factor_correction = compensation; }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 	void set_wingspan(float wingspan) { _wingspan = wingspan; }
 	void set_auw(float auw) { _auw = auw; }
 	void set_propeller_diameter(float diameter) {_propeller_diameter = diameter; }
@@ -146,9 +147,13 @@ public:
         void set_flaps_applied(float flaps) { _flaps_applied = flaps; }
         void set_min_sink_rate_flaps(float rate) { _min_sink_rate_flaps = rate; }
 >>>>>>> refractoring
+=======
+	void set_flaps_applied(float flaps) { _flaps_applied = flaps; }
+	void set_min_sink_rate_flaps(float rate) { _min_sink_rate_flaps = rate; }
+>>>>>>> removed whitespace
 
 	void set_pitchsp_offset_rad(float offset) { _pitchsp_offset_rad = offset; }
-        void set_pitchsp_offset_flaps_rad(float offset) { _pitchsp_offset_flaps_rad = offset; }
+	void set_pitchsp_offset_flaps_rad(float offset) { _pitchsp_offset_flaps_rad = offset; }
 	void set_cl_to_alpha_rad_slope(float slope) { _cl_to_alpha_rad_slope = slope; }
 	void set_wing_area(float a) { _wing_area = a; }
 
