@@ -74,8 +74,8 @@ public:
 	 * Must be called at 50Hz or greater
 	 */
 	void update_vehicle_state_estimates(float airspeed, const matrix::Dcmf &rotMat,
-					    const matrix::Vector3f &accel_body, bool altitude_lock, bool in_air,
-					    float altitude, float vz);
+						const matrix::Vector3f &accel_body, bool altitude_lock, bool in_air,
+						float altitude, float vz);
 
 	/**
 	 * Update the control loop calculations
@@ -133,27 +133,17 @@ public:
 
 	void set_roll_throttle_compensation(float compensation) { _load_factor_correction = compensation; }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 	void set_wingspan(float wingspan) { _wingspan = wingspan; }
 	void set_auw(float auw) { _auw = auw; }
 	void set_propeller_diameter(float diameter) {_propeller_diameter = diameter; }
 	void set_use_advanced_thr_calculation(bool value) {_use_advanced_thr_calculation = value; }
-	void set_motor_airstream_at_elevator_scaler(float scaler) {_motor_airstream_at_elevator_scaler = scaler; }
 
-	void set_flaps_applied(float flaps) { _flaps_applied = flaps; }
-	void set_min_sink_rate_flaps(float rate) { _min_sink_rate_flaps = rate; }
-=======
-        void set_flaps_applied(float flaps) { _flaps_applied = flaps; }
-        void set_min_sink_rate_flaps(float rate) { _min_sink_rate_flaps = rate; }
->>>>>>> refractoring
-=======
-	void set_flaps_applied(float flaps) { _flaps_applied = flaps; }
-	void set_min_sink_rate_flaps(float rate) { _min_sink_rate_flaps = rate; }
->>>>>>> removed whitespace
+		void set_motor_airstream_at_elevator_scaler(float scaler) {_motor_airstream_at_elevator_scaler = scaler; }
+		void set_flaps_applied(float flaps) { _flaps_applied = flaps; }
+		void set_min_sink_rate_flaps(float rate) { _min_sink_rate_flaps = rate; }
 
 	void set_pitchsp_offset_rad(float offset) { _pitchsp_offset_rad = offset; }
-	void set_pitchsp_offset_flaps_rad(float offset) { _pitchsp_offset_flaps_rad = offset; }
+		void set_pitchsp_offset_flaps_rad(float offset) { _pitchsp_offset_flaps_rad = offset; }
 	void set_cl_to_alpha_rad_slope(float slope) { _cl_to_alpha_rad_slope = slope; }
 	void set_wing_area(float a) { _wing_area = a; }
 
@@ -269,22 +259,8 @@ private:
 	float _hgt_setpoint_adj{0.0f};					///< demanded height used by the control loops after all filtering has been applied (m)
 	float _hgt_setpoint_adj_prev{0.0f};				///< value of _hgt_setpoint_adj from previous frame (m)
 	float _hgt_rate_setpoint{0.0f};					///< demanded climb rate tracked by the TECS algorithm
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 	float _position_control_hgt_rate{0.0};
 	bool _use_position_control_hgt_rate{false};
-=======
-	float _hgt_rate_setpoint_ff{0.0};
->>>>>>> added feed forward SKE and SPE rates
-=======
->>>>>>> back to proportional STE rate error control.
-=======
-	float _hgt_rate_setpoint_actual{0.0f};			///< actual climb rate tracked by the TECS algorithm
->>>>>>> bug fixes
-=======
->>>>>>> _STE_rate_setpoint_pitch is not a good idea.
 
 	// vehicle physical limits
 	float _pitch_setpoint_unc{0.0f};				///< pitch demand before limiting (rad)
@@ -344,17 +320,17 @@ private:
 	float _motor_airstream_at_elevator_scaler{0.0f};
 
 	// flaps
-        float _flaps_applied{0.0f};
-        float _min_sink_rate_flaps{1.0f};
+		float _flaps_applied{0.0f};
+		float _min_sink_rate_flaps{1.0f};
 	float _STE_rate_flaps{0.0f};
 	float _STE_rate_demand_flaps{0.0f};			///< additional drag from flaps
 
 	// pitch offsets
 	float _pitchsp_offset_rad{0.0f};
-        float _pitchsp_offset_flaps_rad{0.0f};
+		float _pitchsp_offset_flaps_rad{0.0f};
 	float _cl_to_alpha_rad_slope{0.0f};
 	float _cl_offset_clean_cruise_trim_as{0.0f};
-        float _cl_offset_flaps_cruise_trim_as{0.0f};
+		float _cl_offset_flaps_cruise_trim_as{0.0f};
 	float _wing_area{0.0f};
 	float _cl_cruise_trim_as{0.0f};
 	float _cl_coefficient{0.0f};
@@ -409,7 +385,7 @@ private:
 	/**
 	 * Calculate specific total energy rate limits
 	 */
-        void _update_STE_rate_lim(float throttle_cruise, const matrix::Dcmf &rotMat);
+		void _update_STE_rate_lim(float throttle_cruise, const matrix::Dcmf &rotMat);
 
 	/**
 	 * Initialize the wing's lift profile calculations
