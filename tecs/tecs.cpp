@@ -265,10 +265,6 @@ void TECS::_update_throttle_setpoint(const float throttle_cruise, const matrix::
 	// Calculate total energy error
 	_STE_error = _SPE_setpoint - _SPE_estimate + _SKE_setpoint - _SKE_estimate;
 
-	// The flaps only increase the parasitic drag (which is ~V^2) because the lift remains constant.
-	float as_ratio = _EAS / _indicated_airspeed_trim;
-	_STE_rate_demand_flaps = _flaps_applied * _STE_rate_flaps * as_ratio * as_ratio;
-
 	// Calculate demanded rate of change of total energy, respecting vehicle limits
 	float STE_rate_setpoint = constrain((_SPE_rate_setpoint + _SKE_rate_setpoint + _STE_rate_demand_flaps), _STE_rate_min, _STE_rate_max);
 
@@ -552,8 +548,6 @@ void TECS::_update_STE_rate_lim()
 
 	// Calculate the specific total energy lower rate limits from the min throttle sink rate
 	_STE_rate_min = - _min_sink_rate * CONSTANTS_ONE_G;
-
-	_STE_rate_flaps = (_min_sink_rate_flaps - _min_sink_rate) * CONSTANTS_ONE_G;
 }
 
 void TECS::update_pitch_throttle(const matrix::Dcmf &rotMat, float pitch, float baro_altitude, float hgt_setpoint,
