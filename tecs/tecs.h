@@ -138,16 +138,21 @@ public:
 	void set_propeller_diameter(float diameter) {_propeller_diameter = diameter; }
 	void set_use_advanced_thr_calculation(bool value) {_use_advanced_thr_calculation = value; }
 
-		void set_motor_airstream_at_elevator_scaler(float scaler) {_motor_airstream_at_elevator_scaler = scaler; }
-		void set_flaps_applied(float flaps) { _flaps_applied = flaps; }
-		void set_min_sink_rate_flaps(float rate) { _min_sink_rate_flaps = rate; }
+	void set_motor_airstream_at_elevator_scaler(float scaler) {_motor_airstream_at_elevator_scaler = scaler; }
+	void set_flaps_applied(float flaps) { _flaps_applied = flaps; }
+	void set_min_sink_rate_flaps(float rate) { _min_sink_rate_flaps = rate; }
 
 	void set_pitchsp_offset_rad(float offset) { _pitchsp_offset_rad = offset; }
-		void set_pitchsp_offset_flaps_rad(float offset) { _pitchsp_offset_flaps_rad = offset; }
+	void set_pitchsp_offset_flaps_rad(float offset) { _pitchsp_offset_flaps_rad = offset; }
 	void set_cl_to_alpha_rad_slope(float slope) { _cl_to_alpha_rad_slope = slope; }
 	void set_wing_area(float a) { _wing_area = a; }
 
 	void set_pos_ctrl_hgt_rate(bool use, float rate = 0.0f){ _use_position_control_hgt_rate = use; _position_control_hgt_rate = rate; }
+
+	void set_pitchsp_offset_rad(float offset) { _pitchsp_offset_rad = offset; }
+	void set_pitchsp_offset_flaps_rad(float offset) { _pitchsp_offset_flaps_rad = offset; }
+	void set_cl_to_alpha_rad_slope(float slope) { _cl_to_alpha_rad_slope = slope; }
+	void set_wing_area(float a) { _wing_area = a; }
 
 	// TECS status
 	uint64_t timestamp() { return _pitch_update_timestamp; }
@@ -320,17 +325,19 @@ private:
 	float _motor_airstream_at_elevator_scaler{0.0f};
 
 	// flaps
-		float _flaps_applied{0.0f};
-		float _min_sink_rate_flaps{1.0f};
+	float _flaps_applied{0.0f};
+	float _min_sink_rate_flaps{1.0f};
+
 	float _STE_rate_flaps{0.0f};
 	float _STE_rate_demand_flaps{0.0f};			///< additional drag from flaps
 
 	// pitch offsets
 	float _pitchsp_offset_rad{0.0f};
-		float _pitchsp_offset_flaps_rad{0.0f};
+	float _pitchsp_offset_flaps_rad{0.0f};
 	float _cl_to_alpha_rad_slope{0.0f};
 	float _cl_offset_clean_cruise_trim_as{0.0f};
-		float _cl_offset_flaps_cruise_trim_as{0.0f};
+	float _cl_offset_flaps_cruise_trim_as{0.0f};
+
 	float _wing_area{0.0f};
 	float _cl_cruise_trim_as{0.0f};
 	float _cl_coefficient{0.0f};
@@ -386,6 +393,11 @@ private:
 	 * Calculate specific total energy rate limits
 	 */
 		void _update_STE_rate_lim(float throttle_cruise, const matrix::Dcmf &rotMat);
+
+	/**
+	 * Initialize the wing's lift profile calculations
+	 */
+	void _initialize_pitchsp_offset();
 
 	/**
 	 * Initialize the wing's lift profile calculations

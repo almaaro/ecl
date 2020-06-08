@@ -465,7 +465,6 @@ void TECS::_update_pitch_setpoint()
 	// energy should be allocated to speed (kinetic energy) and height (potential energy)
 	float SEB_setpoint = _SPE_setpoint * SPE_weighting - _SKE_setpoint * SKE_weighting;
 
-
 	// Because the airspeed is more critical for an airplane than the altitude, limit the _SPE_rate_setpoint
 	// so that the demanded rate in airspeed can be achieved.
 	float SPE_rate_setpoint_adj = min(_SPE_rate_setpoint, _STE_rate_max - _SKE_rate_setpoint);
@@ -520,7 +519,7 @@ void TECS::_update_pitch_setpoint()
 	float cl = _cl_coefficient / (EAS_adj * EAS_adj);
 
 	//Then calculate the needed pitch. Take the flap setting into account.
-		float offset = (1.0f - _flaps_applied) * _pitchsp_offset_rad + _flaps_applied * _pitchsp_offset_flaps_rad;
+	float offset = (1.0f - _flaps_applied) * _pitchsp_offset_rad + _flaps_applied * _pitchsp_offset_flaps_rad;
 	float psp_offset_adj = offset + _cl_to_alpha_rad_slope * (cl - _cl_cruise_trim_as);
 
 	_pitch_setpoint_unc += psp_offset_adj;
@@ -691,8 +690,6 @@ throttle_calculation_default:
 		_STE_rate_max = rate_max;
 		_STE_rate_min = rate_min;
 	}
-
-		_STE_rate_flaps = (_min_sink_rate_flaps - _min_sink_rate) * CONSTANTS_ONE_G;
 }
 
 void TECS::update_pitch_throttle(const matrix::Dcmf &rotMat, float pitch, float baro_altitude, float hgt_setpoint,
@@ -742,6 +739,9 @@ void TECS::update_pitch_throttle(const matrix::Dcmf &rotMat, float pitch, float 
 	//initialize pitch setpoint offsets if needed
 	_initialize_pitchsp_offset();
 
+	//initialize pitch setpoint offsets if needed
+	_initialize_pitchsp_offset();
+
 	// Calculate the pitch demand
 	_update_pitch_setpoint();
 
@@ -783,7 +783,11 @@ void TECS::_initialize_pitchsp_offset() {
 		_cl_offset_clean_cruise_trim_as = _cl_cruise_trim_as - _pitchsp_offset_rad / _cl_to_alpha_rad_slope;
 
 		//Setting the flaps should ideally only change the offset, not the slope angle.
+<<<<<<< HEAD
 				_cl_offset_flaps_cruise_trim_as = _cl_cruise_trim_as - _pitchsp_offset_flaps_rad / _cl_to_alpha_rad_slope;
+=======
+                _cl_offset_flaps_cruise_trim_as = _cl_cruise_trim_as - _pitchsp_offset_flaps_rad / _cl_to_alpha_rad_slope;
+>>>>>>> flaps-as-pitch-offset-and-drag
 
 		//the required cl for any airspeed can be calculated by dividing _cl_coefficient by airspeed squared.
 		_cl_coefficient = _cl_cruise_trim_as * _indicated_airspeed_trim * _indicated_airspeed_trim;
