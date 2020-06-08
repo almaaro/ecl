@@ -282,7 +282,7 @@ void TECS::_update_throttle_setpoint(const float throttle_cruise, const matrix::
 		_throttle_setpoint = 1.0f;
 
 	} else {
-                // The STE rate setpoint must now be constrained so that we will never end up in a situation where
+		// The STE rate setpoint must now be constrained so that we will never end up in a situation where
 		// the total energy is OK, but the airspeed is dangerously low because we have too much potential energy.
 		// This is prevented by first bleeding off any excess potential energy into kinetic energy and then reducing the excess
 		// airspeed. However, if the pitch is controlling also the airspeed, the risk of this underspeeding is reduced.
@@ -331,11 +331,11 @@ void TECS::_update_throttle_setpoint(const float throttle_cruise, const matrix::
 			}
 		}
 		else{
-                        // Adjust the demanded total energy rate to compensate for induced drag rise in turns.
-                        // Assume induced drag scales linearly with normal load factor.
-                        // The additional normal load factor is given by (1/cos(bank angle) - 1)
-                        float cosPhi = sqrtf((rotMat(0, 1) * rotMat(0, 1)) + (rotMat(1, 1) * rotMat(1, 1)));
-                        STE_rate_setpoint = STE_rate_setpoint + _load_factor_correction * (1.0f / constrain(cosPhi, 0.1f, 1.0f) - 1.0f);
+			// Adjust the demanded total energy rate to compensate for induced drag rise in turns.
+			// Assume induced drag scales linearly with normal load factor.
+			// The additional normal load factor is given by (1/cos(bank angle) - 1)
+			float cosPhi = sqrtf((rotMat(0, 1) * rotMat(0, 1)) + (rotMat(1, 1) * rotMat(1, 1)));
+			STE_rate_setpoint = STE_rate_setpoint + _load_factor_correction * (1.0f / constrain(cosPhi, 0.1f, 1.0f) - 1.0f);
 
 			if (STE_rate_setpoint >= 0) {
 				// throttle is between cruise and maximum
@@ -345,7 +345,7 @@ void TECS::_update_throttle_setpoint(const float throttle_cruise, const matrix::
 				// throttle is between cruise and minimum
 				throttle_predicted = throttle_cruise + STE_rate_setpoint / _STE_rate_min * (_throttle_setpoint_min - throttle_cruise);
 
-			}    
+			}
 		}
 
 		// Calculate gain scaler from specific energy error to throttle
@@ -583,35 +583,36 @@ void TECS::_update_STE_rate_lim(float throttle_cruise, const matrix::Dcmf &rotMa
 	// Calculate the specific total energy lower rate limits from the min throttle sink rate
 	const float rate_min = - _min_sink_rate * CONSTANTS_ONE_G;
 
+	const float rate_min_flaps = - (_flaps_applied * _min_sink_rate_flaps + (1.0f - _flaps_applied) * _min_sink_rate) * CONSTANTS_ONE_G;
+
 	if (_use_advanced_thr_calculation) {
 
+		// Some error checks
+		if (_auw < 0.01f || _wingspan < 0.01f || _indicated_airspeed_trim > 0.95f * _indicated_airspeed_max ||
+				throttle_cruise > 0.95f * _throttle_setpoint_max){
+			goto throttle_calculation_default;
+		}
+
+		/* Airspeed-dependent drag coefficients */
+		// All of these calculations assume that the air density is constant (sea level 15C).
+		// This also assumes that in the conditions where the parameters such as CLIMB_MAX, SINK_MIN and ASPD_MAX were measured,
+		// EAS2TAS was 1 meaning that all _indicated_airspeed_[min|trim|max] were equal to their TAS values.
+
+		// The additional normal load factor is given by (1/cos(bank angle) - 1)
+		float cosPhi = sqrtf((rotMat(0, 1) * rotMat(0, 1)) + (rotMat(1, 1) * rotMat(1, 1)));
+		const float lift = _auw * CONSTANTS_ONE_G * (1.0f / constrain(cosPhi, 0.1f, 1.0f) - 1.0f);
+
+		// _Cd_i_specific: Vehicle specific induced drag coefficient, which equals to 1/2*S*rho*Cd_i
+		// Cd_i_specific = ... assuming planar wing. Efficiency factor of 0.85 for a starting point (should possibly be a parameter).
+		_cd_i_specific = lift * lift / (0.5f * M_PI_F * CONSTANTS_AIR_DENSITY_SEA_LEVEL_15C * _wingspan * _wingspan * _auw * 0.85f);
+
+		// _Cd_o_specific: Vehicle specific parasitic drag coefficient, which equals to 1/2*A*rho*Cd_o
+		// Cd_o_specific: subtracting induced drag from total drag at a known airspeed to calculate parasitic drag
+		_cd_o_specific = (-rate_min_flaps - _cd_i_specific / _indicated_airspeed_trim) /
+				(_indicated_airspeed_trim * _indicated_airspeed_trim * _indicated_airspeed_trim);
+
+		/* Throttle calculation */
 		if (!_advanced_thr_calc_initialized){
-			// Some error checks
-			if (_auw < 0.01f || _wingspan < 0.01f || _indicated_airspeed_trim > 0.95f * _indicated_airspeed_max ||
-					throttle_cruise > 0.95f * _throttle_setpoint_max){
-				goto throttle_calculation_default;
-			}
-
-			/* Airspeed-dependent drag coefficients */
-			// All of these calculations assume that the air density is constant (sea level 15C).
-			// This also assumes that in the conditions where the parameters such as CLIMB_MAX, SINK_MIN and ASPD_MAX were measured,
-			// EAS2TAS was 1 meaning that all _indicated_airspeed_[min|trim|max] were equal to their TAS values.
-
-                        // The additional normal load factor is given by (1/cos(bank angle) - 1)
-                        float cosPhi = sqrtf((rotMat(0, 1) * rotMat(0, 1)) + (rotMat(1, 1) * rotMat(1, 1)));
-                        const float lift = _auw * CONSTANTS_ONE_G * (1.0f / constrain(cosPhi, 0.1f, 1.0f) - 1.0f);
-
-			// _Cd_i_specific: Vehicle specific induced drag coefficient, which equals to 1/2*S*rho*Cd_i
-			// Cd_i_specific = ... assuming planar wing. Efficiency factor of 0.85 for a starting point (should possibly be a parameter).
-			_cd_i_specific = lift * lift / (0.5f * M_PI_F * CONSTANTS_AIR_DENSITY_SEA_LEVEL_15C * _wingspan * _wingspan * _auw * 0.85f);
-
-			// _Cd_o_specific: Vehicle specific parasitic drag coefficient, which equals to 1/2*A*rho*Cd_o
-			// Cd_o_specific: subtracting induced drag from total drag at a known airspeed to calculate parasitic drag
-			_cd_o_specific = (-rate_min - _cd_i_specific / _indicated_airspeed_trim) /
-					(_indicated_airspeed_trim * _indicated_airspeed_trim * _indicated_airspeed_trim);
-
-			/* Throttle calculation */
-
 			// Calculated thrust at different throttle settings and airspeeds.
 			_thrust_trim_as_max_climb = (rate_max - rate_min) / _indicated_airspeed_trim * _auw;
 			const float thrust_trim_as_level = -rate_min / _indicated_airspeed_trim * _auw;
@@ -647,7 +648,9 @@ void TECS::_update_STE_rate_lim(float throttle_cruise, const matrix::Dcmf &rotMa
 				goto throttle_calculation_default;
 			}
 
-		} else if (_EAS > 1.0f) {
+		}
+
+		if (_EAS > 1.0f) {
 			// _STE_rate_min equals to the sum of parasitic and induced drag power.
 			// Drag force = _Cd_i / _EAS /_EAS + _Cd_o_specific * _EAS *_EAS;
 			// Drag power = Drag force * _tas_state
