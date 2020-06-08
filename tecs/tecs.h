@@ -392,7 +392,7 @@ private:
 	/**
 	 * Calculate specific total energy rate limits
 	 */
-		void _update_STE_rate_lim(float throttle_cruise, const matrix::Dcmf &rotMat);
+	void _update_STE_rate_lim(float throttle_cruise, const matrix::Dcmf &rotMat);
 
 	/**
 	 * Initialize the wing's lift profile calculations
