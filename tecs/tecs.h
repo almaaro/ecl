@@ -282,17 +282,16 @@ private:
 	bool _in_air{false};						///< true when the vehicle is flying
 
 	// flaps
-        float _flaps_applied{0.0f};
-        float _min_sink_rate_flaps{1.0f};
+	float _flaps_applied{0.0f};
+	float _min_sink_rate_flaps{1.0f};
 	float _STE_rate_flaps{0.0f};
-	float _STE_rate_demand_flaps{0.0f};			///< additional drag from flaps
 
 	// pitch offsets
 	float _pitchsp_offset_rad{0.0f};
-        float _pitchsp_offset_flaps_rad{0.0f};
+	float _pitchsp_offset_flaps_rad{0.0f};
 	float _cl_to_alpha_rad_slope{0.0f};
 	float _cl_offset_clean_cruise_trim_as{0.0f};
-        float _cl_offset_flaps_cruise_trim_as{0.0f};
+	float _cl_offset_flaps_cruise_trim_as{0.0f};
 	float _wing_area{0.0f};
 	float _cl_cruise_trim_as{0.0f};
 	float _cl_coefficient{0.0f};

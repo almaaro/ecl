@@ -266,7 +266,7 @@ void TECS::_update_throttle_setpoint(const float throttle_cruise, const matrix::
 	_STE_error = _SPE_setpoint - _SPE_estimate + _SKE_setpoint - _SKE_estimate;
 
 	// Calculate demanded rate of change of total energy, respecting vehicle limits
-	float STE_rate_setpoint = constrain((_SPE_rate_setpoint + _SKE_rate_setpoint + _STE_rate_demand_flaps), _STE_rate_min, _STE_rate_max);
+	float STE_rate_setpoint = constrain((_SPE_rate_setpoint + _SKE_rate_setpoint), _STE_rate_min, _STE_rate_max);
 
 	// Calculate the total energy rate error, applying a first order IIR filter
 	// to reduce the effect of accelerometer noise
