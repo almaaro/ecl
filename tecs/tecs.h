@@ -390,10 +390,4 @@ private:
 	 * Initialize the wing's lift profile calculations
 	 */
 	void _initialize_pitchsp_offset();
-
-	/**
-	 * Initialize the wing's lift profile calculations
-	 */
-	void _initialize_pitchsp_offset();
-
 };
