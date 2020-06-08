@@ -284,7 +284,6 @@ private:
 	// flaps
 	float _flaps_applied{0.0f};
 	float _min_sink_rate_flaps{1.0f};
-	float _STE_rate_flaps{0.0f};
 
 	// pitch offsets
 	float _pitchsp_offset_rad{0.0f};
