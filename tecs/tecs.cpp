@@ -223,6 +223,14 @@ void TECS::_update_height_setpoint(float desired, float state)
 	}
 
 	// Limit the rate of change of height demand to respect vehicle performance limits
+	if (_hgt_rate_setpoint > _max_climb_rate) {
+		_hgt_rate_setpoint = _max_climb_rate;
+
+	} else if (_hgt_rate_setpoint < -_max_sink_rate) {
+		_hgt_rate_setpoint = -_max_sink_rate;
+	}
+
+	// Limit the rate of change of height demand to respect vehicle performance limits
 	_hgt_rate_setpoint = constrain(_hgt_rate_setpoint, -_max_sink_rate, _max_climb_rate);
 }
 
