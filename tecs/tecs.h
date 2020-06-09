@@ -237,7 +237,7 @@ private:
 	float _hgt_setpoint_adj_prev{0.0f};				///< value of _hgt_setpoint_adj from previous frame (m)
 	float _hgt_rate_setpoint{0.0f};					///< demanded climb rate tracked by the TECS algorithm
 	float _position_control_hgt_rate{0.0};
-	bool _use_position_control_hgt_rate{false};
+	volatile bool _use_position_control_hgt_rate{false};
 
 	// vehicle physical limits
 	float _pitch_setpoint_unc{0.0f};				///< pitch demand before limiting (rad)
