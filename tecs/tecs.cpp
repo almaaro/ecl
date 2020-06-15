@@ -744,9 +744,6 @@ void TECS::update_pitch_throttle(const matrix::Dcmf &rotMat, float pitch, float 
 	//initialize pitch setpoint offsets if needed
 	_initialize_pitchsp_offset();
 
-	//initialize pitch setpoint offsets if needed
-	_initialize_pitchsp_offset();
-
 	// Calculate the pitch demand
 	_update_pitch_setpoint();
 
