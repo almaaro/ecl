@@ -620,9 +620,9 @@ void TECS::_update_STE_rate_lim(float throttle_cruise, const matrix::Dcmf &rotMa
 		// This also assumes that in the conditions where the parameters such as CLIMB_MAX, SINK_MIN and ASPD_MAX were measured,
 		// EAS2TAS was 1 meaning that all _indicated_airspeed_[min|trim|max] were equal to their TAS values.
 
-		// The additional normal load factor is given by (1/cos(bank angle) - 1)
+		// The additional normal load factor is given by 1/cos(bank angle)
 		float cosPhi = sqrtf((rotMat(0, 1) * rotMat(0, 1)) + (rotMat(1, 1) * rotMat(1, 1)));
-		const float lift = _auw * CONSTANTS_ONE_G * (1.0f / constrain(cosPhi, 0.1f, 1.0f) - 1.0f);
+		const float lift = _auw * CONSTANTS_ONE_G / constrain(cosPhi, 0.1f, 1.0f);
 
 		// _Cd_i_specific: Vehicle specific induced drag coefficient, which equals to 1/2*S*rho*Cd_i
 		// Cd_i_specific = ... assuming planar wing. Efficiency factor of 0.85 for a starting point (should possibly be a parameter).
