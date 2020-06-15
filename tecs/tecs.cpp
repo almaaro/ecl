@@ -284,12 +284,26 @@ void TECS::_update_throttle_setpoint(const float throttle_cruise, const matrix::
 		// Change to feed forward and proportional control
 		STE_rate_setpoint = STE_rate_setpoint + _STE_rate_error * _throttle_damping_gain;
 
+		// Calculate the throttle demand
+
+		// The STE rate setpoint must now be constrained so that we will never end up in a situation where
+		// the total energy is OK, but the airspeed is dangerously low because we have too much potential energy.
+		// This is prevented by first bleeding off any excess potential energy into kinetic energy and then reducing the excess
+		// airspeed. However, if the pitch is controlling also the airspeed, the risk of this underspeeding is reduced.
+		float STE_rate_min_adj = (0.5f * _pitch_speed_weight) * _STE_rate_min + (1.0f - 0.5f * _pitch_speed_weight) * _SKE_rate_setpoint;
+
+		//Also adjust the safety margin to the current airspeed. Full effect at min airspeed, no effect at trim airspeed.
+		float scaler = constrain((_EAS - _indicated_airspeed_min) / (max(0.1f, _indicated_airspeed_trim - _indicated_airspeed_min)), 0.0f, 1.0f);
+		STE_rate_min_adj = (1.0f - scaler) * STE_rate_min_adj + scaler * _STE_rate_min;
+
+		STE_rate_setpoint = constrain(STE_rate_setpoint, STE_rate_min_adj, _STE_rate_max);
+
 		if (_throttle_integrator_gain > 0.0f) {
 				// Calculate throttle integrator state upper and lower limits with allowance for
 				// 10% throttle saturation to accommodate noise on the demand.
-				float integrator_margin = 0.1f * (_STE_rate_max - _STE_rate_min);
+				float integrator_margin = 0.1f * (_STE_rate_max - STE_rate_min_adj);
 				float integ_state_max = _STE_rate_max - STE_rate_setpoint + integrator_margin;
-				float integ_state_min = _STE_rate_min - STE_rate_setpoint  - integrator_margin;
+				float integ_state_min = STE_rate_min_adj - STE_rate_setpoint  - integrator_margin;
 
 				if (_climbout_mode_active) {
 				// During climbout, set the integrator to maximum throttle to prevent transient throttle drop
@@ -309,8 +323,8 @@ void TECS::_update_throttle_setpoint(const float throttle_cruise, const matrix::
 						if (ste_integ > _STE_rate_max) {
 								_STE_integ_state = _STE_integ_state - (ste_integ - _STE_rate_max) * _dt;
 
-						} else if (ste_integ < _STE_rate_min) {
-								_STE_integ_state = _STE_integ_state - (ste_integ - _STE_rate_min) * _dt;
+						} else if (ste_integ < STE_rate_min_adj) {
+								_STE_integ_state = _STE_integ_state - (ste_integ - STE_rate_min_adj) * _dt;
 
 						} else {
 								_STE_integ_state = _STE_integ_state + (_STE_rate_error * _throttle_integrator_gain) * _dt;
@@ -325,21 +339,6 @@ void TECS::_update_throttle_setpoint(const float throttle_cruise, const matrix::
 		}
 
 		STE_rate_setpoint = STE_rate_setpoint + _STE_integ_state;
-		STE_rate_setpoint = constrain(STE_rate_setpoint, _STE_rate_min, _STE_rate_max);
-
-		// Calculate the throttle demand
-
-		// The STE rate setpoint must now be constrained so that we will never end up in a situation where
-		// the total energy is OK, but the airspeed is dangerously low because we have too much potential energy.
-		// This is prevented by first bleeding off any excess potential energy into kinetic energy and then reducing the excess
-		// airspeed. However, if the pitch is controlling also the airspeed, the risk of this underspeeding is reduced.
-		float STE_rate_min_adj = (0.5f * _pitch_speed_weight) * _STE_rate_min + (1.0f - 0.5f * _pitch_speed_weight) * _SKE_rate_setpoint;
-
-		//Also adjust the safety margin to the current airspeed. Full effect at min airspeed, no effect at trim airspeed.
-		float scaler = constrain((_EAS - _indicated_airspeed_min) / (max(0.1f, _indicated_airspeed_trim - _indicated_airspeed_min)), 0.0f, 1.0f);
-		STE_rate_min_adj = (1.0f - scaler) * STE_rate_min_adj + scaler * _STE_rate_min;
-
-		STE_rate_setpoint = constrain(STE_rate_setpoint, STE_rate_min_adj, _STE_rate_max);
 
 		// Calculate a predicted throttle from the demanded rate of change of energy, using the cruise throttle
 		// as the starting point. Assume:
