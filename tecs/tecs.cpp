@@ -269,8 +269,18 @@ void TECS::_update_throttle_setpoint(const float throttle_cruise, const matrix::
 	// Calculate total energy error
 	_STE_error = _SPE_setpoint - _SPE_estimate + _SKE_setpoint - _SKE_estimate;
 
+	// The STE rate setpoint must now be constrained so that we will never end up in a situation where
+	// the total energy is OK, but the airspeed is dangerously low because we have too much potential energy.
+	// This is prevented by first bleeding off any excess potential energy into kinetic energy and then reducing the excess
+	// airspeed. However, if the pitch is controlling also the airspeed, the risk of this underspeeding is reduced.
+	float STE_rate_min_adj = (0.5f * _pitch_speed_weight) * _STE_rate_min + (1.0f - 0.5f * _pitch_speed_weight) * _SKE_rate_setpoint;
+
+	//Also adjust the safety margin to the current airspeed. Full effect at min airspeed, no effect at trim airspeed.
+	float scaler = constrain((_EAS - _indicated_airspeed_min) / (max(0.1f, _indicated_airspeed_trim - _indicated_airspeed_min)), 0.0f, 1.0f);
+	STE_rate_min_adj = (1.0f - scaler) * STE_rate_min_adj + scaler * _STE_rate_min;
+
 	// Calculate demanded rate of change of total energy, respecting vehicle limits
-	float STE_rate_setpoint = constrain((_SPE_rate_setpoint + _SKE_rate_setpoint), _STE_rate_min, _STE_rate_max);
+	float STE_rate_setpoint = constrain((_SPE_rate_setpoint + _SKE_rate_setpoint), STE_rate_min_adj, _STE_rate_max);
 
 	// Calculate the total energy rate error, applying a first order IIR filter
 	// to reduce the effect of accelerometer noise
@@ -282,18 +292,6 @@ void TECS::_update_throttle_setpoint(const float throttle_cruise, const matrix::
 		_throttle_setpoint = 1.0f;
 
 	} else {
-		// The STE rate setpoint must now be constrained so that we will never end up in a situation where
-		// the total energy is OK, but the airspeed is dangerously low because we have too much potential energy.
-		// This is prevented by first bleeding off any excess potential energy into kinetic energy and then reducing the excess
-		// airspeed. However, if the pitch is controlling also the airspeed, the risk of this underspeeding is reduced.
-		float STE_rate_min_adj = (0.5f * _pitch_speed_weight) * _STE_rate_min + (1.0f - 0.5f * _pitch_speed_weight) * _SKE_rate_setpoint;
-
-		//Also adjust the safety margin to the current airspeed. Full effect at min airspeed, no effect at trim airspeed.
-		float scaler = constrain((_EAS - _indicated_airspeed_min) / (max(0.1f, _indicated_airspeed_trim - _indicated_airspeed_min)), 0.0f, 1.0f);
-		STE_rate_min_adj = (1.0f - scaler) * STE_rate_min_adj + scaler * _STE_rate_min;
-
-		STE_rate_setpoint = constrain(STE_rate_setpoint, STE_rate_min_adj, _STE_rate_max);
-
 		// Calculate a predicted throttle from the demanded rate of change of energy, using the cruise throttle
 		// as the starting point. Assume:
 		// Specific total energy rate = _STE_rate_max is achieved when throttle is set to _throttle_setpoint_max
