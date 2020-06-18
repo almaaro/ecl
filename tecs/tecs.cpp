@@ -400,7 +400,56 @@ void TECS::_update_throttle_setpoint(const float throttle_cruise, const matrix::
 	if (fabsf(_throttle_slewrate) > 0.01f) {
 			float throttle_increment_limit = _dt * (_throttle_setpoint_max - _throttle_setpoint_min) * _throttle_slewrate;
 			_throttle_setpoint = constrain(_throttle_setpoint, _last_throttle_setpoint - throttle_increment_limit,
+<<<<<<< HEAD
 											   _last_throttle_setpoint + throttle_increment_limit);
+=======
+						       _last_throttle_setpoint + throttle_increment_limit);
+		}
+
+		// Apply a lpf if present
+		float const_adj = _throttle_time_constant / _dt;
+		if (const_adj > 1.0f) {
+			_throttle_setpoint = 1.0f / const_adj * _throttle_setpoint + (1.0f - 1.0f / const_adj) * _last_throttle_setpoint;
+		}
+
+		_last_throttle_setpoint = _throttle_setpoint;
+
+		if (_integrator_gain > 0.0f) {
+			// Calculate throttle integrator state upper and lower limits with allowance for
+			// 10% throttle saturation to accommodate noise on the demand.
+			float integ_state_max = _throttle_setpoint_max - _throttle_setpoint + 0.1f;
+			float integ_state_min = _throttle_setpoint_min - _throttle_setpoint - 0.1f;
+
+			// Calculate a throttle demand from the integrated total energy error
+			// This will be added to the total throttle demand to compensate for steady state errors
+			_throttle_integ_state = _throttle_integ_state + (_STE_error * _integrator_gain) * _dt * STE_to_throttle;
+
+			if (_climbout_mode_active) {
+				// During climbout, set the integrator to maximum throttle to prevent transient throttle drop
+				// at end of climbout when we transition to closed loop throttle control
+				_throttle_integ_state = integ_state_max;
+
+			} else {
+				// Respect integrator limits during closed loop operation.
+				_throttle_integ_state = constrain(_throttle_integ_state, integ_state_min, integ_state_max);
+			}
+
+		} else {
+			_throttle_integ_state = 0.0f;
+		}
+
+		if (airspeed_sensor_enabled()) {
+			// Add the integrator feedback during closed loop operation with an airspeed sensor
+			_throttle_setpoint = _throttle_setpoint + _throttle_integ_state;
+
+		} else {
+			// when flying without an airspeed sensor, use the predicted throttle only
+			_throttle_setpoint = throttle_predicted;
+
+		}
+
+		_throttle_setpoint = constrain(_throttle_setpoint, _throttle_setpoint_min, _throttle_setpoint_max);
+>>>>>>> advanced-ste-limits
 	}
 
 	_last_throttle_setpoint = _throttle_setpoint;
