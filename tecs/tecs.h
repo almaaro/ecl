@@ -149,6 +149,8 @@ public:
 
 	void set_pos_ctrl_hgt_rate(bool use, float rate = 0.0f){ _use_position_control_hgt_rate = use; _position_control_hgt_rate = rate; }
 
+	void set_throttle_lpf_time_constant(float time_constant) { _throttle_lpf_time_constant = time_constant; }
+
 	// TECS status
 	uint64_t timestamp() { return _pitch_update_timestamp; }
 	ECL_TECS_MODE tecs_mode() { return _tecs_mode; }
@@ -223,6 +225,7 @@ private:
 	float _indicated_airspeed_max{30.0f};				///< equivalent airspeed demand upper limit (m/sec)
 	float _indicated_airspeed_trim{15.0f};				///< equivalent airspeed demand default (m/sec)
 	float _throttle_slewrate{0.0f};					///< throttle demand slew rate limit (1/sec)
+	float _throttle_lpf_time_constant{0.0f};		///< throttle lpf time constant (s)
 
 	// controller outputs
 	float _throttle_setpoint{0.0f};					///< normalized throttle demand (0..1)
