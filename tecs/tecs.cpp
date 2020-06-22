@@ -360,12 +360,6 @@ void TECS::_update_throttle_setpoint(const float throttle_cruise, const matrix::
 						       _last_throttle_setpoint + throttle_increment_limit);
 		}
 
-		// Apply a lpf if present
-		float const_adj = _throttle_time_constant / _dt;
-		if (const_adj > 1.0f) {
-			_throttle_setpoint = 1.0f / const_adj * _throttle_setpoint + (1.0f - 1.0f / const_adj) * _last_throttle_setpoint;
-		}
-
 		_last_throttle_setpoint = _throttle_setpoint;
 
 		if (_integrator_gain > 0.0f) {
