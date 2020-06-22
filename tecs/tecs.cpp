@@ -315,6 +315,9 @@ void TECS::_update_throttle_setpoint(const float throttle_cruise, const matrix::
 						       _last_throttle_setpoint + throttle_increment_limit);
 		}
 
+		// Throttle lpf smoothing
+		_throttle_setpoint = _last_throttle_setpoint + _dt / (_dt + _throttle_lpf_time_constant) * (_throttle_setpoint - _last_throttle_setpoint);
+
 		_last_throttle_setpoint = _throttle_setpoint;
 
 		if (_integrator_gain > 0.0f) {

@@ -127,6 +127,8 @@ public:
 
 	void set_roll_throttle_compensation(float compensation) { _load_factor_correction = compensation; }
 
+	void set_throttle_lpf_time_constant(float time_constant) { _throttle_lpf_time_constant = time_constant; }
+
 	// TECS status
 	uint64_t timestamp() { return _pitch_update_timestamp; }
 	ECL_TECS_MODE tecs_mode() { return _tecs_mode; }
@@ -199,6 +201,7 @@ private:
 	float _indicated_airspeed_min{3.0f};				///< equivalent airspeed demand lower limit (m/sec)
 	float _indicated_airspeed_max{30.0f};				///< equivalent airspeed demand upper limit (m/sec)
 	float _throttle_slewrate{0.0f};					///< throttle demand slew rate limit (1/sec)
+	float _throttle_lpf_time_constant{0.0f};		///< throttle lpf time constant (s)
 
 	// controller outputs
 	float _throttle_setpoint{0.0f};					///< normalized throttle demand (0..1)
